@@ -25,5 +25,84 @@
 ## 初始化：生成种子图像及对应文本描述
 
 给语义空间划分为三类，针对每一个类别随机生成$N_i$描述。
-
+![image.png](image.png)
 找出TopK CLIPScore得分最低的几个图像-文本对，作为扰动种子。
+![e1339164f940041108b10270e919248.png](e1339164f940041108b10270e919248.png)
+
+a picture of a blue dog wearing sunglasses in the style of realistic. It is sitting on the beach in the moon on a snowy day, （it is drinking a bottle of cola. There are many medieval castles around and many spaceships in the sky.）
+
+## 文本扰动
+
+a watercolor of three red cats wearing pirate hats in the style of **surrealism**. They are dancing on the deck of a ship in the middle of the ocean on a stormy day, （their tails swinging with the wind. The sea is full of giant glowing jellyfish, and the sky is crackling with lightning.）
+
+使用LLM进化算法更新Prompt，得到一个CLIPScore比较低的种子图像用来作定制化生成·。
+
+## 定制化生成
+
+<aside>
+💡
+
+主要思想：
+
+考虑输入的有object的图像，定制化生成可以提取这个object，并为其生成多样的内容和场景。我们希望寻找对于特定的object，它处在何种的语义环境或者场景里具有对抗性，比如同样一只狗，它在“草地”、“沙滩”、“室内“这种自然的环境下可能比较容易被多模态大模型识别，但是在一些艺术设计场景比如“月球”、“赛博朋克”或者一些影响能见度的场景比如“大雾”、“暴雨”中，它很可能会超出多模态大模型的理解能力，为了寻找这种对抗的语义环境，我们使用定制化生成，在生成过程中保持主体不变，防止对抗性来自于主体，而去测试同一个object在何种环境下可能使多模态大模型性能下降。
+
+</aside>
+
+- 输入图片：使用上面的初始化生成种子（带有一定的对抗性）或者直接选用一张图片。
+- 图片的GroundTruth：图片描述，即caption。
+- TargetModel：MLLM
+- 迭代更新方式：LLM进化算法（每一轮更新Prompt）
+
+![image.png](image%201.png)
+
+# 下游任务
+
+## Caption生成任务
+
+我们用于生成图片的Prompt是Ground Truth，比较MLLM生成的caption与Prompt的差别即可。
+
+### Caption评测标准
+
+简单的想法：测量文本语义相似度
+
+![image.png](image%202.png)
+
+图片来源于
+
+![image.png](image%203.png)
+
+代码：https://github.com/foundation-multimodal-models/CAPTURE
+
+## VQA任务
+
+在caption的生成和修改过程中始终保持固定格式：
+
+<aside>
+💡
+
+a <picture/photo/watercolor/sketch/sculpture> of <number> <color> <object> <appearance> in the style of <style>. <It/He/She> is <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>.
+
+</aside>
+
+所以我们就可以设置一系列固定的问题，去询问每一个视觉元素，并且根据caption Ground Truth找出正确的答案。
+
+比如：
+
+- What is the weather like in this picture?
+- What is the style of this picture?
+- What is the subject of this picture?
+- How many <object> are there in this image?（object从caption中获取）
+
+… …（可以由LLM根据Caption生成，这样就获得了有标准答案的问题）
+
+### VQA评测标准
+
+简单的想法：测量文本语义相似度
+
+搜集中
+
+**Open-ended VQA benchmarking of Vision-Language models by exploiting Classification datasets and their semantic hierarchy（ICLR2024）**
+
+# 更多
+
+使用得到的对抗样本微调MLLM，检测其对MLLM的提升效果。（待定）
