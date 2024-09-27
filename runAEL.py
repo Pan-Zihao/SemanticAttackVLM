@@ -106,8 +106,8 @@ if __name__ == "__main__":
 
     pipe = FluxPipeline.from_pretrained("black-forest-labs/FLUX.1-dev", torch_dtype=torch.bfloat16)
     pipe.enable_model_cpu_offload()
-    model = CLIPModel.from_pretrained("clip-vit-base-patch16").to(device)
-    processor = CLIPProcessor.from_pretrained("clip-vit-base-patch16")
+    model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16").to(device)
+    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
     eva = Evaluation(pipe,model,processor,device=device)
 
     print(">>> Start AEL ")
