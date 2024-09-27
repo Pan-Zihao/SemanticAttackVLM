@@ -20,6 +20,10 @@ def get_output(file_path='./ael_results/combined_results.json'):
 
     code_list = [entry["code"] for entry in data.values()]
 
+    with open('./stage1_results/captions/captions.txt', 'r', encoding='utf-8') as file:
+        for caption in code_list:
+            file.write(caption + "\n")
+
     return code_list
 
 
@@ -65,7 +69,7 @@ if __name__ == "__main__":
     # number of parents for 'e1' and 'e2' operators, default = 2
     parser.add_argument('--m',default=4,type=int)
     parser.add_argument('--source_folder', default="./images_stage1", type=str)
-    parser.add_argument('--target_folder', default="./stage1_results")
+    parser.add_argument('--target_folder', default="./stage1_results/images")
     parser.add_argument('--object',default=False,type=bool)
 
     args = parser.parse_args()

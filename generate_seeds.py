@@ -3,9 +3,9 @@ import os
 import openai
 import json
 import torch
+from PIL.Image import Image
 from diffusers import FluxPipeline
 from transformers import CLIPProcessor, CLIPModel
-from prepareAEL import *
 
 def get_response(prompt_content):
     BASE_URL = "https://api.xiaoai.plus/v1"
