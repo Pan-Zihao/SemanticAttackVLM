@@ -29,7 +29,7 @@ def get_response(prompt_content):
     return response.choices[0].message.content
 
 
-prompt = "Requirements: Generate an imaginative image description sentence according to the sentence format I give below. The more varied your descriptions are, the better, from elements of human society to the natural world, as well as science fiction or mythology or art. Format: a <picture/photo/watercolor/sketch> of a/an <color> <object> <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <object> can be filled in with people, animals or any object, and <appearance> can be filled in with appearance descriptions such as wearing glasses. You can add descriptive sentences as appropriate. Example: a picture of a blue dog wearing sunglasses in the style of realistic. It is sitting on the beach in the moon on a snowy day, it is drinking a bottle of cola. There are many medieval castles around and many spaceships in the sky."
+prompt = "Requirements: Generate an imaginative image description sentence according to the sentence format I give below. The more varied your descriptions are, the better. Format: a <picture/photo/watercolor/sketch> of a/an <color> <object> <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <object> can be filled in with people, animals or any object, and <appearance> can be filled in with appearance descriptions such as wearing glasses. You can add descriptive sentences as appropriate. Example: a picture of a blue dog wearing sunglasses in the style of realistic. It is sitting on the beach in the moon on a snowy day, it is drinking a bottle of cola. There are many medieval castles around and many spaceships in the sky."
 
 def create_seed_json(code_list, objective_list, output_file):
     # 确保两个列表的长度相同
@@ -59,22 +59,22 @@ def initialize(QA_number):
             code_list.append(caption)
             # 打开文件并写入字符串
             file.write(caption + "\n")  # 写入字符串并在每个字符串后添加换行符
-        image = pipe(
-            caption,
-            height=1024,
-            width=1024,
-            guidance_scale=3.5,
-            num_inference_steps=50,
-            max_sequence_length=512,
-            generator=torch.Generator("cpu").manual_seed(0)
-        ).images[0]
-        image.save(f"./seedfile/seedimage/{i}.png")
-        image_v = Image.open(f"./seedfile/seedimage/{i}.png")
-        inputs = processor(text=caption, images=image_v, return_tensors="pt", padding=True).to(device)
-        outputs = model(**inputs)
-        fitness = outputs.logits_per_image[0]
-        print(fitness)
-        objective_list.append(fitness)
+            image = pipe(
+                caption,
+                height=1024,
+                width=1024,
+                guidance_scale=3.5,
+                num_inference_steps=50,
+                max_sequence_length=512,
+                generator=torch.Generator("cpu").manual_seed(0)
+            ).images[0]
+            image.save(f"./seedfile/seedimage/{i}.png")
+            image_v = Image.open(f"./seedfile/seedimage/{i}.png")
+            inputs = processor(text=caption, images=image_v, return_tensors="pt", padding=True).to(device)
+            outputs = model(**inputs)
+            fitness = outputs.logits_per_image[0]
+            print(fitness)
+            objective_list.append(fitness)
 
 
 if __name__ == "__main__":
