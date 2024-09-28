@@ -1,0 +1,16 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A watercolor of a golden phoenix with flaming feathers in the style of surrealism. It is soaring above the rooftops in an ancient city on a stormy day, scattering embers from its wings, amidst an environment of twisting spires and floating lanterns.",
+          "objective": [
+               28.200899124145508
+          ],
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A detailed watercolor of a radiant golden phoenix with fiery flaming feathers in the style of surrealism. It is majestically soaring above the crumbling rooftops in an ancient, mystical city on a stormy, overcast day, gracefully scattering glowing embers from its ethereal wings, amidst an environment of twisting, towering spires and shimmering, floating lanterns.",
+          "objective": 26.458160400390625,
+          "other_inf": null
+     }
+}

@@ -19,8 +19,10 @@ def get_output(file_path='./ael_results/combined_results.json'):
         data = json.load(file)
 
     code_list = [entry["code"] for entry in data.values()]
+    caption_path = './stage1_results/captions/captions.txt'
+    os.makedirs(os.path.dirname(caption_path), exist_ok=True)
 
-    with open('./stage1_results/captions/captions.txt', 'r', encoding='utf-8') as file:
+    with open(caption_path, 'w', encoding='utf-8') as file:
         for caption in code_list:
             file.write(caption + "\n")
 
@@ -63,11 +65,11 @@ if __name__ == "__main__":
     # Adding necessary input arguments
     parser = argparse.ArgumentParser(description='main')
     # number of algorithms in each population, default = 10
-    parser.add_argument('--pop_size', default=50, type=int)
+    parser.add_argument('--pop_size', default=2, type=int)
     # number of populations, default = 10
-    parser.add_argument('--n_pop',default=5,type=int)
+    parser.add_argument('--n_pop',default=2,type=int)
     # number of parents for 'e1' and 'e2' operators, default = 2
-    parser.add_argument('--m',default=4,type=int)
+    parser.add_argument('--m',default=2,type=int)
     parser.add_argument('--source_folder', default="./images_stage1", type=str)
     parser.add_argument('--target_folder', default="./stage1_results/images")
     parser.add_argument('--object',default=False,type=bool)
@@ -86,13 +88,13 @@ if __name__ == "__main__":
     # llm_model = "gpt-3.5-turbo-1106"
     llm_model = "gpt-4o"
     ### output path ###
-    output_path = "/"  # default folder for ael outputs
+    output_path = "./"  # default folder for ael outputs
     createFolders.create_folders(output_path)
     load_data = {
         'use_seed': True,
-        'seed_path': output_path + "/ael_seeds/seeds.json",
+        'seed_path': output_path + "ael_seeds/seeds.json",
         "use_pop": False,
-        "pop_path": output_path + "/ael_results/pops/population_generation_0.json",
+        "pop_path": output_path + "ael_results/pops/population_generation_0.json",
         "n_pop_initial": 0
     }
     ### Debug model ###
@@ -108,13 +110,15 @@ if __name__ == "__main__":
     else:
         device = torch.device("cpu")  # 如果CUDA不可用，使用CPU
 
-    pipe = FluxPipeline.from_pretrained("black-forest-labs/FLUX.1-dev", torch_dtype=torch.bfloat16)
+    pipe = FluxPipeline.from_pretrained("/storage/panzihao/models/FLUX.1-dev", torch_dtype=torch.bfloat16)
     pipe.enable_model_cpu_offload()
-    model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16").to(device)
-    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
+    model = CLIPModel.from_pretrained("/storage/panzihao/models/clip-vit-large-patch14").to(device)
+    processor = CLIPProcessor.from_pretrained("/storage/panzihao/models/clip-vit-large-patch14")
     eva = Evaluation(pipe,model,processor,device=device)
 
     print(">>> Start AEL ")
+    if not os.path.exists(args.source_folder):
+        os.makedirs(args.source_folder)
     algorithmEvolution = ael.AEL(use_local_llm, url,
         api_endpoint,api_key,llm_model,args.pop_size,args.n_pop,
         operators,args.m,operator_weights,load_data,output_path,debug_mode,evaluation=eva)

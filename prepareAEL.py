@@ -34,7 +34,7 @@ class Evaluation:
         ).images[0]
         image.save(f"./images_stage1/{self.index}.png")
         image_v = Image.open(f"./images_stage1/{self.index}.png")
-        inputs = self.processor(text=caption, images=image_v, return_tensors="pt", padding=True).to(self.device)
+        inputs = self.processor(text=caption, images=image_v, return_tensors="pt", padding=True, truncation=True, max_length=77).to(self.device)
         outputs = self.encoder(**inputs)
         fitness = outputs.logits_per_image[0]
         self.index = self.index + 1

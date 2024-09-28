@@ -3,7 +3,7 @@ import os
 import openai
 import json
 import torch
-from PIL.Image import Image
+import PIL.Image
 from diffusers import FluxPipeline
 from transformers import CLIPProcessor, CLIPModel
 
@@ -39,6 +39,11 @@ def create_seed_json(code_list, objective_list, output_file):
     # 构建JSON数据结构
     seed_data = []
     for code, objective in zip(code_list, objective_list):
+        if isinstance(objective, torch.Tensor):
+            if objective.numel() == 1:  # to scalar or list
+                objective = objective.item()  
+            else:
+                objective = objective.tolist()  
         entry = {
             "algorithm": "",
             "code": code,
@@ -46,6 +51,7 @@ def create_seed_json(code_list, objective_list, output_file):
             "other_inf": None
         }
         seed_data.append(entry)
+        print("code",code,"objective", objective)
 
     # 将数据写入JSON文件
     with open(output_file, 'w', encoding='utf-8') as file:
@@ -69,8 +75,8 @@ def initialize(QA_number):
                 generator=torch.Generator("cpu").manual_seed(0)
             ).images[0]
             image.save(f"./seedfile/seedimage/{i}.png")
-            image_v = Image.open(f"./seedfile/seedimage/{i}.png")
-            inputs = processor(text=caption, images=image_v, return_tensors="pt", padding=True).to(device)
+            image_v = PIL.Image.open(f"./seedfile/seedimage/{i}.png")
+            inputs = processor(text=caption, images=image_v, return_tensors="pt", padding=True, truncation=True,max_length=77).to(device)
             outputs = model(**inputs)
             fitness = outputs.logits_per_image[0]
             print(fitness)
@@ -93,10 +99,12 @@ if __name__ == "__main__":
     else:
         device = torch.device("cpu")  # 如果CUDA不可用，使用CPU
 
-    pipe = FluxPipeline.from_pretrained("black-forest-labs/FLUX.1-dev", torch_dtype=torch.bfloat16)
+    pipe = FluxPipeline.from_pretrained("/storage/panzihao/models/FLUX.1-dev", torch_dtype=torch.bfloat16)
     pipe.enable_model_cpu_offload()
-    model = CLIPModel.from_pretrained("openai/clip-vit-base-patch16").to(device)
-    processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch16")
+    model = CLIPModel.from_pretrained("/storage/panzihao/models/clip-vit-large-patch14").to(device)
+    processor = CLIPProcessor.from_pretrained("/storage/panzihao/models/clip-vit-large-patch14")
+    if os.path.exists(args.captionfilename):
+        os.remove(args.captionfilename)
     initialize(args.QA_number)
 
     with open(args.captionfilename, 'r', encoding='utf-8') as file:

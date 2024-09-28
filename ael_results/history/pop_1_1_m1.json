@@ -1,0 +1,14 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A watercolor of a golden phoenix with radiant feathers in the style of abstract expressionism. It perches on the edge of a craggy cliff overlooking a vast desert under a twilight sky, casting a warm glow from its wings, amidst a landscape of wind-carved rock formations and floating glass orbs.",
+          "objective": 27.762489318847656,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A watercolor of a resplendent golden phoenix with magnificent radiant feathers in the style of vibrant abstract expressionism. It elegantly perches on the rugged edge of a craggy cliff overlooking a vast, serene desert under a stunning twilight sky, casting an enchanting warm glow from its wings, amidst a surreal landscape of towering wind-carved rock formations and mesmerizing floating glass orbs.",
+          "objective": 23.00572967529297,
+          "other_inf": null
+     }
+}

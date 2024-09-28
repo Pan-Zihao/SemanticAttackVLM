@@ -1,0 +1,14 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A stunning sketch of a majestic, gleaming golden phoenix with delicate, iridescent plumes in the elegant, whimsical style of fantasy art. It hovers gracefully above the crystal-clear waters of a serene, ancient lagoon under a starlit, twilight sky, casting reflections across the mirror-like surface. The scene is surrounded by bioluminescent corals and rare, luminescent aquatic plants, amidst crescent-shaped cliffs covered in luminescent moss, creating an enchanting atmosphere.",
+          "objective": 29.465599060058594,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A stunning sketch of an ethereal, majestic, gleaming golden phoenix with delicate, iridescent plumes in the elegant, whimsical style of fantasy art. It hovers gracefully above the crystal-clear, pristine waters of a serene, ancient lagoon under a brilliantly starlit, twilight sky, casting mesmerizing reflections across the mirror-like surface. The scene is surrounded by vibrant, bioluminescent corals and rare, luminescent aquatic plants, amidst crescent-shaped cliffs covered in luxuriant, luminescent moss, creating an enchanting, otherworldly atmosphere.",
+          "objective": 28.430910110473633,
+          "other_inf": null
+     }
+}

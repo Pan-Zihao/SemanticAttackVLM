@@ -1,0 +1,14 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A breathtaking watercolor of a resplendent golden phoenix with magnificent, effulgent radiant feathers in the style of vibrant abstract expressionism. It majestically soars over the lush emerald canopy of an ancient, mystical forest under a canopy of twinkling, ethereal stars on a clear, starlit night, casting a celestial, otherworldly luminescence from its wings amidst a fantastical, dreamlike landscape of bioluminescent flora and whispering, shimmering silver streams.",
+          "objective": 26.27596092224121,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A watercolor of a golden phoenix with luminescent feathers in the style of abstract expressionism. It soars majestically over the lush emerald canopy of an ancient forest under a twinkling, clear, starlit sky, casting a magical luminescence from its wings amidst a dreamlike landscape of glowing flora and shimmering streams.",
+          "objective": 26.2196102142334,
+          "other_inf": null
+     }
+}
