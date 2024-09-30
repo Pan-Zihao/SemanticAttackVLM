@@ -2,6 +2,18 @@ import random
 from llava.model.builder import load_pretrained_model
 from llava.mm_utils import get_model_name_from_path
 from llava.eval.run_llava import eval_model
+from rouge import Rouge
+
+def calculate_rouge(reference_summary, generated_summary):
+    rouge = Rouge()
+
+    # 计算 ROUGE 分数
+    scores = rouge.get_scores(generated_summary, reference_summary)[0]
+
+    # 计算平均 F1 分数
+    average_f1 = (scores['rouge-1']['f'] + scores['rouge-2']['f'] + scores['rouge-l']['f']) / 3
+    return average_f1
+
 
 def image_caption(model_path, image_file, prompt):
     tokenizer, model, image_processor, context_len = load_pretrained_model(
@@ -39,14 +51,11 @@ def image_caption(model_path, image_file, prompt):
 #print(result)
 
 
-
-def score(caption,precaption):
-    return random.random()
 #TODO
 def caption_score(caption,model_path, image_file, prompt):
     pre_caption = image_caption(model_path, image_file, prompt)
     #score = random.random()
-    score = score(caption,pre_caption)
+    score = calculate_rouge(caption,pre_caption)
     return score
 
 
