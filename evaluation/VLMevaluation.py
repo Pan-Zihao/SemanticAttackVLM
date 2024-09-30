@@ -3,6 +3,36 @@ from llava.model.builder import load_pretrained_model
 from llava.mm_utils import get_model_name_from_path
 from llava.eval.run_llava import eval_model
 from rouge import Rouge
+import nltk
+from nltk.translate.bleu_score import sentence_bleu
+import nltk
+from nltk.translate import meteor_score
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+nltk.download('punkt')
+nltk.download('wordnet')
+
+
+
+              
+def calculate_meteor(reference_sentences, hypothesis_sentence):
+    reference_sentences = [reference_sentences]
+    lemmatizer = WordNetLemmatizer()
+
+    reference_tokens = [word_tokenize(ref) for ref in reference_sentences]
+    hypothesis_tokens = word_tokenize(hypothesis_sentence)
+
+    reference_tokens = [[lemmatizer.lemmatize(word) for word in ref] for ref in reference_tokens]
+    hypothesis_tokens = [lemmatizer.lemmatize(word) for word in hypothesis_tokens]
+
+    score = meteor_score.single_meteor_score(reference_tokens[0], hypothesis_tokens)
+    return score
+
+def calculate_BLEU(reference_summary, generated_summary):
+    reference = reference.split()
+    candidate = candidate.split()
+    bleu_score = sentence_bleu([reference], candidate)
+    return bleu_score
 
 def calculate_rouge(reference_summary, generated_summary):
     rouge = Rouge()
@@ -55,7 +85,7 @@ def image_caption(model_path, image_file, prompt):
 def caption_score(caption,model_path, image_file, prompt):
     pre_caption = image_caption(model_path, image_file, prompt)
     #score = random.random()
-    score = calculate_rouge(caption,pre_caption)
+    score = calculate_rouge(caption,pre_caption)+calculate_meteor(caption,pre_caption)+calculate_BLEU(caption,pre_caption)
     return score
 
 
