@@ -28,7 +28,7 @@ def calculate_meteor(reference_sentences, hypothesis_sentence):
     score = meteor_score.single_meteor_score(reference_tokens[0], hypothesis_tokens)
     return score
 
-def calculate_BLEU(reference_summary, generated_summary):
+def calculate_BLEU(reference, candidate):
     reference = reference.split()
     candidate = candidate.split()
     bleu_score = sentence_bleu([reference], candidate)
