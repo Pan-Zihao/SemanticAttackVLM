@@ -11,52 +11,21 @@ from aell.src.aell import ael
 from aell.src.aell.utils import createFolders
 import torch
 from diffusers import FluxPipeline
-from transformers import CLIPProcessor, CLIPModel
+from x_flux.src.flux.xflux_pipeline import XFluxPipeline
 from prepareAEL import *
 
-def get_output(file_path='./ael_results/combined_results.json'):
+def get_output(results, caption_path, image_path, file_path='./ael_results/combined_results.json'):
     with open(file_path, 'r', encoding='utf-8') as file:
         data = json.load(file)
 
     code_list = [entry["code"] for entry in data.values()]
-    caption_path = './stage1_results/captions/captions.txt'
     os.makedirs(os.path.dirname(caption_path), exist_ok=True)
 
     with open(caption_path, 'w', encoding='utf-8') as file:
         for caption in code_list:
             file.write(caption + "\n")
-
-    return code_list
-
-
-def copy_top_K_images(source_folder, target_folder, K):
-    # 确保目标文件夹存在
-    if not os.path.exists(target_folder):
-        os.makedirs(target_folder)
-
-    # 获取所有图片文件
-    images = [f for f in os.listdir(source_folder) if re.match(r'.*\.png', f)]
-
-    # 如果文件夹为空或图片不足K张，返回错误
-    if len(images) == 0:
-        print("No images found in the source folder.")
-        return
-    if len(images) < K:
-        print(f"Only {len(images)} images found, not enough to copy K.")
-        return
-
-    # 根据索引排序图片
-    images.sort(key=lambda x: int(re.search(r'(\d+)', x).group()), reverse=True)
-
-    # 选择索引最大的K张图片
-    top_K_images = images[:K]
-
-    # 复制图片到新文件夹
-    for image in top_K_images:
-        source_path = os.path.join(source_folder, image)
-        target_path = os.path.join(target_folder, image)
-        shutil.copy(source_path, target_path)
-        print(f"Copied {image} to {target_folder}")
+            image = results[caption]
+            shutil.copy(image, image_path)
 
 ### Debug model ###
 debug_mode = False# if debug
@@ -65,14 +34,41 @@ if __name__ == "__main__":
     # Adding necessary input arguments
     parser = argparse.ArgumentParser(description='main')
     # number of algorithms in each population, default = 10
-    parser.add_argument('--pop_size', default=2, type=int)
+    parser.add_argument('--pop_size', default=50, type=int)
     # number of populations, default = 10
-    parser.add_argument('--n_pop',default=2,type=int)
+    parser.add_argument('--n_pop',default=5,type=int)
     # number of parents for 'e1' and 'e2' operators, default = 2
-    parser.add_argument('--m',default=2,type=int)
-    parser.add_argument('--source_folder', default="./images_stage1", type=str)
-    parser.add_argument('--target_folder', default="./stage1_results/images")
-    parser.add_argument('--object',default=False,type=bool)
+    parser.add_argument('--m',default=4,type=int)
+    parser.add_argument('--caption_path', default="./stage1_results/captions/captions.txt")
+    parser.add_argument('--image_path', default="./stage1_results/images")
+    parser.add_argument('--stage', default=1, type=int)
+    # 使用示例
+    # model_path = "model/llava-v1.5-7b"
+    # model_path = "model/llava-v1.5-13b"
+    # model_path = "model/llava-v1.6-vicuna-7b"
+    # model_path = "model/llava-v1.6-vicuna-13b"
+    parser.add_argument('--VLMpath', default="model/llava-v1.5-7b", type=str)
+    parser.add_argument('--pattern', default="caption", type=str)
+    parser.add_argument(
+        "--ip_repo_id", type=str, default=None,
+        help="A HuggingFace repo id to download model (IP-Adapter)"
+    )
+    parser.add_argument(
+        "--ip_name", type=str, default=None,
+        help="A IP-Adapter filename to download from HuggingFace"
+    )
+    parser.add_argument(
+        "--ip_local_path", type=str, default=None,
+        help="Local path to the model checkpoint (IP-Adapter)"
+    )
+    parser.add_argument(
+        "--model_type", type=str, default="flux-dev",
+        choices=("flux-dev", "flux-dev-fp8", "flux-schnell"),
+        help="Model type to use (flux-dev, flux-dev-fp8, flux-schnell)"
+    )
+    parser.add_argument(
+        "--offload", action='store_true', help="Offload model to CPU when not in use"
+    )
 
     args = parser.parse_args()
 
@@ -109,27 +105,61 @@ if __name__ == "__main__":
         device = torch.device("cuda")  # 设置设备为GPU
     else:
         device = torch.device("cpu")  # 如果CUDA不可用，使用CPU
+    if os.path.exists(args.caption_path):
+        os.remove(args.caption_path)
+    if os.path.exists(args.image_path):
+        shutil.rmtree(args.image_path)
+        os.mkdir(args.image_path)
 
-    pipe = FluxPipeline.from_pretrained("/storage/panzihao/models/FLUX.1-dev", torch_dtype=torch.bfloat16)
-    pipe.enable_model_cpu_offload()
-    model = CLIPModel.from_pretrained("/storage/panzihao/models/clip-vit-large-patch14").to(device)
-    processor = CLIPProcessor.from_pretrained("/storage/panzihao/models/clip-vit-large-patch14")
-    eva = Evaluation(pipe,model,processor,device=device)
+    if args.stage == 1:
+        pipe = FluxPipeline.from_pretrained("/storage/panzihao/models/FLUX.1-dev", torch_dtype=torch.bfloat16)
+        pipe.enable_model_cpu_offload()
+        eva = Evaluation(pipe,image_prompt=None,stage=1,pattern=args.pattern,VLMpath=args.VLMpath)
+        print(">>> Start AEL stage1")
+        algorithmEvolution = ael.AEL(use_local_llm, url,
+            api_endpoint,api_key,llm_model,args.pop_size,args.n_pop,
+            operators,args.m,operator_weights,load_data,output_path,debug_mode,evaluation=eva)
 
-    print(">>> Start AEL ")
-    if not os.path.exists(args.source_folder):
-        os.makedirs(args.source_folder)
-    algorithmEvolution = ael.AEL(use_local_llm, url,
-        api_endpoint,api_key,llm_model,args.pop_size,args.n_pop,
-        operators,args.m,operator_weights,load_data,output_path,debug_mode,evaluation=eva)
+        # run AEL
+        algorithmEvolution.run(object=False)
+        print("AEL successfully finished !")
+        get_output(eva.stages1, args.caption_path, args.image_path)
+        if os.path.exists('results1.json'):
+            os.remove('results1.json')
+        if os.path.exists('objective1.json'):
+            os.remove('objective1.json')
+        with open('results1.json', 'w') as f1:
+            json.dump(eva.stages1, f1)
+        with open('objective1.json', 'w') as f2:
+            json.dump(eva.objective1, f2)
+    elif args.stage == 2:
+        pipe = XFluxPipeline(args.model_type, device, args.offload)
+        pipe.set_ip(args.ip_local_path, args.ip_repo_id, args.ip_name)
+        with open('results1.json', 'r') as f1:
+            results1 = json.load(f1)
+        with open('objective1.json', 'r') as f2:
+            objective1 = json.load(f2)
+        min_key = min(objective1, key=lambda k: objective1[k])
+        image_prompt = Image.open(results1[min_key])
+        eva = Evaluation(pipe, image_prompt=image_prompt, stage=2, pattern=args.pattern, VLMpath=args.VLMpath)
+        print(">>> Start AEL stage2")
+        algorithmEvolution = ael.AEL(use_local_llm, url,
+                                     api_endpoint, api_key, llm_model, args.pop_size, args.n_pop,
+                                     operators, args.m, operator_weights, load_data, output_path, debug_mode,
+                                     evaluation=eva)
 
-    # run AEL
-    algorithmEvolution.run(object=args.object)
-
-    print("AEL successfully finished !")
-    print(get_output())
-    # 调用函数
-    copy_top_K_images(args.source_folder, args.target_folder, K=args.n_pop)
+        # run AEL
+        algorithmEvolution.run(object=True)
+        print("AEL successfully finished !")
+        get_output(eva.stages2, args.caption_path, args.image_path)
+        if os.path.exists('results2.json'):
+            os.remove('results2.json')
+        if os.path.exists('objective2.json'):
+            os.remove('objective2.json')
+        with open('results2.json', 'w') as f1:
+            json.dump(eva.stages2, f1)
+        with open('objective2.json', 'w') as f2:
+            json.dump(eva.objective2, f2)
 
 
 

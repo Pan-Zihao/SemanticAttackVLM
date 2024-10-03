@@ -5,30 +5,44 @@ import json
 import torch
 from PIL import Image
 from diffusers import FluxPipeline
-from transformers import CLIPProcessor, CLIPModel
-from ipadapter_x_flux.src.flux.xflux_pipeline import XFluxPipeline
-import shutil  
+from x_flux.src.flux.xflux_pipeline import XFluxPipeline
+from evaluation.VLMevaluation import caption_score, VQA_score
+import shutil
+import requests
 
-def get_response(prompt_content):
-    BASE_URL = "https://api.xiaoai.plus/v1"
-    OPENAI_API_KEY = "sk-ePaBZR3FUIwaQNojF0871e9a338d44C5B4D332B8B6B8968e"
-    client = openai.OpenAI(
-        api_key=OPENAI_API_KEY,
-        base_url=BASE_URL,
-    )
-    response = client.chat.completions.create(
-        model="gpt-4o",
-        temperature=0,
-        max_tokens=512,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0,
-        messages=[
-            {"role": "user", "content": prompt_content}
+def get_response(user_message):
+    Baseurl = "https://api.claude-Plus.top"
+    Skey = "sk-vjulMaFmBWm31NP4OqwnKaDJMb3X0jbVlnIvg4XbYgtXwzWi"
+
+    payload = json.dumps({
+        "model": "claude-3-5-sonnet-20240620",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant."
+            },
+            {
+                "role": "user",
+                "content": user_message
+            }
         ]
-    )
+    })
 
-    return response.choices[0].message.content
+    url = Baseurl + "/v1/chat/completions"
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {Skey}',
+        'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, data=payload)
+
+    data = response.json()
+
+    content = data['choices'][0]['message']['content']
+
+    return content
 
 def create_seed_json(code_list, objective_list, output_file):
     # 确保两个列表的长度相同
@@ -57,7 +71,7 @@ def create_seed_json(code_list, objective_list, output_file):
         json.dump(seed_data, file, ensure_ascii=False, indent=4)
 
 
-def initialize(QA_number):
+def initialize(QA_number, prompt, VLMpath, pattern):
     for i in range(QA_number):
         generated_prompts = get_response(prompt)
         generated_prompts_list = [prompt.strip() for prompt in generated_prompts.split('\n') if prompt.strip()]
@@ -71,21 +85,35 @@ def initialize(QA_number):
             print(caption)
             # 打开文件并写入字符串
             file.write(caption + "\n")  # 写入字符串并在每个字符串后添加换行符
-            image = pipe(
-                caption,
-                height=1024,
-                width=1024,
-                guidance_scale=3.5,
-                num_inference_steps=50,
-                max_sequence_length=512,
-                generator=torch.Generator("cpu").manual_seed(0)
-            ).images[0]
+            if args.stage == 1:
+                image = pipe(
+                    caption,
+                    height=1024,
+                    width=1024,
+                    guidance_scale=3.5,
+                    num_inference_steps=50,
+                    max_sequence_length=512,
+                    generator=torch.Generator("cpu").manual_seed(0)
+                ).images[0]
+            elif args.stage == 2:
+                image = xflux_pipeline(
+                    prompt=caption,
+                    width=1024,
+                    height=1024,
+                    guidance=4,
+                    num_steps=25,
+                    seed=i,
+                    true_gs=3.5,
+                    timestep_to_start_cfg=5,
+                    image_prompt=image_prompt,
+                    ip_scale=1.0,
+                )
             image_path = os.path.join(args.imagefilename, f"{i}.png")
             image.save(image_path)
-            image_v = PIL.Image.open(image_path)
-            inputs = processor(text=caption, images=image_v, return_tensors="pt", padding=True, truncation=True,max_length=77).to(device)
-            outputs = model(**inputs)
-            fitness = outputs.logits_per_image[0]
+            if pattern == 'caption':
+                fitness = caption_score(caption, VLMpath, image_path)
+            elif pattern == 'VQA':
+                fitness = VQA_score(caption, VLMpath, image_path)
             print(fitness)
             objective_list.append(fitness)
 
@@ -95,13 +123,17 @@ if __name__ == "__main__":
     #Adding necessary input arguments
     parser = argparse.ArgumentParser(description='generate_seeds_captions')
     parser.add_argument('--QA_number',default=10, type=int)
-    parser.add_argument('--captionfilename',default = "./seedfile/seedcaption.txt", type=str)
-    parser.add_argument('--imagefilename',default = "./seedfile/seedimage", type=str)
+    parser.add_argument('--captionfilename',default = "./seedfile1/seedcaption.txt", type=str)
+    parser.add_argument('--imagefilename',default = "./seedfile1/seedimage", type=str)
     parser.add_argument('--output_file',default='ael_seeds/seeds.json')
-    parser.add_argument('--stage',default=1, type=str)
-    parser.add_argument(
-        "--offload", action='store_true', help="Offload model to CPU when not in use"
-    )
+    parser.add_argument('--stage',default=1, type=int)
+    # 使用示例
+    # model_path = "model/llava-v1.5-7b"
+    # model_path = "model/llava-v1.5-13b"
+    # model_path = "model/llava-v1.6-vicuna-7b"
+    # model_path = "model/llava-v1.6-vicuna-13b"
+    parser.add_argument('--VLMpath', default = "model/llava-v1.5-7b", type=str)
+    parser.add_argument('--pattern', default="caption", type=str)
     parser.add_argument(
         "--ip_repo_id", type=str, default=None,
         help="A HuggingFace repo id to download model (IP-Adapter)"
@@ -114,6 +146,15 @@ if __name__ == "__main__":
         "--ip_local_path", type=str, default=None,
         help="Local path to the model checkpoint (IP-Adapter)"
     )
+    parser.add_argument(
+        "--model_type", type=str, default="flux-dev",
+        choices=("flux-dev", "flux-dev-fp8", "flux-schnell"),
+        help="Model type to use (flux-dev, flux-dev-fp8, flux-schnell)"
+    )
+    parser.add_argument(
+        "--offload", action='store_true', help="Offload model to CPU when not in use"
+    )
+
 
     args = parser.parse_args()
     code_list = []
@@ -123,20 +164,20 @@ if __name__ == "__main__":
         device = torch.device("cuda")  # 设置设备为GPU
     else:
         device = torch.device("cpu")  # 如果CUDA不可用，使用CPU
+    if os.path.exists(args.captionfilename):
+        os.remove(args.captionfilename)
+    if os.path.exists(args.imagefilename):
+        shutil.rmtree(args.imagefilename)
+        os.mkdir(args.imagefilename)
+    if os.path.exists(args.output_file):
+        os.remove(args.output_file)
 
     if args.stage == 1:
-        prompt = "Requirements: Generate five imaginative image descriptions sentence according to the sentence format I give below, separeted by '\n'.Do not add any numbering or bullets, strictly follow the instructions. Format: a <picture/photo/watercolor/sketch> of a/an <color> <object> <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <object> can be filled in with people, animals or object, and <appearance> can be filled in with appearance descriptions such as wearing glasses. You can add descriptive sentences as appropriate. Example: a picture of a blue dog wearing sunglasses in the style of realistic. It is sitting on the beach in the moon on a snowy day, it is drinking a bottle of cola. There are many medieval castles around and many spaceships in the sky."
+        prompt = "Requirements: Generate lots of imaginative image description sentences according to the sentence format I give below, separeted by '\n'.Do not add any numbering or bullets, strictly follow the instructions. Format: a <picture/photo/watercolor/sketch> of a/an <color> <object> <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <object> can be filled in with people, animals or object, and <appearance> can be filled in with appearance descriptions such as wearing glasses. Example: a picture of a blue dog wearing sunglasses in the style of realistic. It is sitting on the beach in the moon on a snowy day, it is drinking a bottle of cola. There are many medieval castles around and many spaceships in the sky."
         pipe = FluxPipeline.from_pretrained("/storage/panzihao/models/FLUX.1-dev", torch_dtype=torch.bfloat16)
         pipe.enable_model_cpu_offload()
-        model = CLIPModel.from_pretrained("/storage/panzihao/models/clip-vit-large-patch14").to(device)
-        processor = CLIPProcessor.from_pretrained("/storage/panzihao/models/clip-vit-large-patch14")
-        if os.path.exists(args.captionfilename):
-            os.remove(args.captionfilename)
-        if os.path.exists(args.imagefilename):
-            shutil.rmtree(args.imagefilename)
-            os.mkdir(args.imagefilename)
         
-        initialize(args.QA_number)
+        initialize(args.QA_number, prompt, args.VLMpath, args.pattern)
 
         with open(args.captionfilename, 'r', encoding='utf-8') as file:
             lines = file.readlines()
@@ -162,30 +203,41 @@ if __name__ == "__main__":
         print('generate seeds success!')
         print(f'the number of seeds is {seed_number}')
     else:
-        prompt = ""
+        with open('results1.json', 'r') as f1:
+            results1 = json.load(f1)
+        with open('objective1.json', 'r') as f2:
+            objective1 = json.load(f2)
+        min_key = min(objective1, key=lambda k: objective1[k])
+        image_prompt = Image.open(results1[min_key])
+        object = get_response(f"Give the subject of the sentence. No adjectives or other words are needed. Just follow the instructions and give a word.\n {min_key}")
+        prompt = f"Requirements: Generate lots of imaginative image description sentences according to the sentence format I give below, separeted by '\n'.Do not add any numbering or bullets, strictly follow the instructions. Format: a <picture/photo/watercolor/sketch> of a/an <color> {object} <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <appearance> can be filled in with appearance descriptions such as wearing glasses. Example: {min_key}"
         xflux_pipeline = XFluxPipeline(args.model_type, device, args.offload)
         xflux_pipeline.set_ip(args.ip_local_path, args.ip_repo_id, args.ip_name)
-        image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff']
+        initialize(args.QA_number, prompt, args.VLMpath, args.pattern)
+        with open(args.captionfilename, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+        # 过滤掉空行，并计算非空行的数量
+        non_empty_lines = [line.strip() for line in lines if line.strip()]
+        # 计算非空行的数量
+        seed_number = len(non_empty_lines)
 
-        images_stage1_path = "stage1_results/images"
-        captions_stage1_path = "stage1_results/captions"
-        images_stage1 = []
-        captions_stage1 = []
+        # 检查文件是否存在
+        if os.path.exists(args.captionfilename):
+            # 删除文件
+            os.remove(args.captionfilename)
+            print(f"File {args.captionfilename} has been deleted successfully.")
+        else:
+            print(f"File {args.captionfilename} does not exist.")
 
+        # 将结果写入新文件
+        with open(args.captionfilename, 'w', encoding='utf-8') as file:
+            file.writelines(non_empty_lines)
 
-        for root, dirs, files in os.walk(images_stage1_path):
-            for file in files:
-                if file.lower().endswith(tuple(image_extensions)):
-                    images_stage1.append(os.path.join(root, file))
+        # 调用函数生成seed.json文件
+        create_seed_json(code_list, objective_list, args.output_file)
+        print('generate seeds success!')
+        print(f'the number of seeds is {seed_number}')
 
-        with open(captions_stage1_path, 'r', encoding='utf-8') as file:
-            for line in file:
-                captions_stage1.append(line.strip())
-
-        keys_tuple = tuple(images_stage1)
-        stage1_results = dict(zip(keys_tuple, captions_stage1))
-        for i in stage1_results.keys():
-            image_prompt = Image.open(args.img_prompt)
 
 
 

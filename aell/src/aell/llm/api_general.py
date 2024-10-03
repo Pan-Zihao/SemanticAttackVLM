@@ -1,5 +1,6 @@
 import http.client
 import json
+import requests
 import openai
 
 class InterfaceAPI:
@@ -41,26 +42,37 @@ class InterfaceAPI:
                 continue
 
         return response
-    def get_response(self, prompt_content):
-        BASE_URL = "https://api.xiaoai.plus/v1"
-        #OPENAI_API_KEY = "sk-UqhYLLaRGhqbMA4bAaEa329e0eEd4a8f9fE5578cB07178Ac"
-        OPENAI_API_KEY = "sk-ePaBZR3FUIwaQNojF0871e9a338d44C5B4D332B8B6B8968e"
-        client = openai.OpenAI(
-            api_key=OPENAI_API_KEY,
-            base_url=BASE_URL,
-        )
-        response = client.chat.completions.create(
-                #model="gpt-3.5-turbo",
-                model="gpt-4o",
 
-                temperature = 0,
-                max_tokens = 500,
-                top_p = 1,
-                frequency_penalty = 0,
-                presence_penalty = 0,
-                messages=[
-                    {"role": "user", "content": prompt_content}
-                ]
-        )
+    def get_response(self, user_message):
+        Baseurl = "https://api.claude-Plus.top"
+        Skey = "sk-vjulMaFmBWm31NP4OqwnKaDJMb3X0jbVlnIvg4XbYgtXwzWi"
 
-        return response.choices[0].message.content
+        payload = json.dumps({
+            "model": "claude-3-5-sonnet-20240620",
+            "messages": [
+                {
+                    "role": "system",
+                    "content": "You are a helpful assistant."
+                },
+                {
+                    "role": "user",
+                    "content": user_message
+                }
+            ]
+        })
+
+        url = Baseurl + "/v1/chat/completions"
+        headers = {
+            'Accept': 'application/json',
+            'Authorization': f'Bearer {Skey}',
+            'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+            'Content-Type': 'application/json'
+        }
+
+        response = requests.post(url, headers=headers, data=payload)
+
+        data = response.json()
+
+        content = data['choices'][0]['message']['content']
+
+        return content

@@ -82,7 +82,8 @@ def image_caption(model_path, image_file, prompt):
 
 
 #TODO
-def caption_score(caption,model_path, image_file, prompt):
+def caption_score(caption, model_path, image_file):
+    prompt = "Please describe the image in the following format: a (picture/photo/watercolor/sketch) of <number> <color> <object> <appearance> in the style of <style>. <They/It/He/She> <gesture> on the <background describe> in the <location> on a <weather> day, <action description>, <environment description>."
     pre_caption = image_caption(model_path, image_file, prompt)
     #score = random.random()
     score = calculate_rouge(caption,pre_caption)+calculate_meteor(caption,pre_caption)+calculate_BLEU(caption,pre_caption)
@@ -90,6 +91,6 @@ def caption_score(caption,model_path, image_file, prompt):
 
 
 #TODO
-def VQA_score(caption, image):
+def VQA_score(caption, model_path, image):
     score = random.random()
     return score
