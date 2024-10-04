@@ -5,39 +5,149 @@
 *2024.9.27* 
 第一阶段代码初步完成，需要在服务器上使用FLUX进行测试。
 
-潘子豪正在进行第二阶段的开发，婧怡正在进行第一阶段的测试和debug，童宇正在进行多模态大模型Benchmark的部署。
+*2024.9.29* 
+第一阶段代码（使用CLIPScore）跑通。
+
+*2024.9.30*
+VLM benchmark（caption）完成。
+
+*2024.10.3*    
+- 将CLIPScore替换为benchmark captionscore。     
+- 将gpt-4o替换为claude-3.5。    
+- 第二阶段代码初步完成，需要在服务器上调试。   
 
 ## 使用说明
+首先使用`generate_seeds.py`生成种子，再使用`runAEL.py`进行LLM进化算法。
+### generate_seeds.py
 
-### 第一阶段
+询问LLM的轮数，注意这不一定等于种子的数量，因为LLM一次response可能会给出很多答案。
 
-使用LLM进化算法自动生成CLIPScore最小的图像-文本对，即对抗语义内容。
-#### 存储目录
-
-- images_stage1：存储LLM进化算法生成的所有的caption对应的图片，使用FLUX生成。 
-- seedfile：存储输入LLM进化算法的种子文件
-- seedfile/seedimage：存储输入LLM进化算法的种子caption的对应的图片，使用FLUX生成
-- seedfile/seedcaption.txt：存储输入LLM进化算法的种子caption，使用GPT-4o生成
-- stage1_results/images：存储第一阶段进化算法输出的最终caption对应的图片，使用FLUX生成
-- stage1_results/captions/caption.txt：存储第一阶段进化算法输出的最终caption
-- *其他文件均为LLM进化算法运行时产生的结果，理论上已经全部被接口封装*
-
-#### 核心代码
-
-- aell文件：core Lib for LLM进化算法
-- llm_server：本地LLM接口和服务，但是我们使用的是api，所以没有什么用
-- caption.txt：**注意这不是结果文件**，这是LLM进化算法运行过程中输入输出获得score的中间桥梁。
-- generate_seeds.py：调用GPT-4o的api生成初始输入LLM进化算法的种子文件，结果放在seedfile
+    parser.add_argument('--QA_number',default=10, type=int)
+种子caption的存储位置，注意区分是第一阶段还是第二阶段。
     
-      python generate_seeds.py --QA_number 10 --captionfilename ./seedfile/seedcaption.txt --output_file ael_seeds/seeds.json
-      
-参数说明：``QA_number``为询问GPT-4o的轮数，但是得到的caption个数不一定等于这个，因为GPT-4o经常会一次性给出很多caption。具体数量以处理后的caption.txt为主。
+    parser.add_argument('--captionfilename',default = "./seedfile1/seedcaption.txt", type=str)
+种子图像的存储位置，注意区分是第一阶段还是第二阶段。    
 
-- prepareAEL.py：主要是计算每个caption的得分功能的实现
-- runAEL.py：核心代码，在seedfile生成之后运行LLM进化算法。
+    parser.add_argument('--imagefilename',default = "./seedfile1/seedimage", type=str)
+种子json文件的输出地址，这里第一阶段和第二阶段生成的文件名称是相同的，注意清除。    
+    
+    parser.add_argument('--output_file',default='ael_seeds/seeds.json')
+为第一阶段生成种子还是第二阶段，两者的区别体现在函数initialize里面，以及prompt的不同。    
+    
+    parser.add_argument('--stage',default=1, type=int)
+VLM模型路径，比如"model/llava-v1.5-7b"，根据服务器实际路径。
 
-        python runAEL.py --object False
-参数说明：都是默认参数，不需要更改。唯一的就是object，object可以保证在生成过程中prompt中``<object>``不发生改变，这主要应用于第二阶段使用IPAdapter，第一阶段默认即可。
+    parser.add_argument('--VLMpath', default = "model/llava-v1.5-7b", type=str)
+评分模式，可以选择是使用caption打分，还是VQA打分。
 
+    parser.add_argument('--pattern', default="caption", type=str)
+一些ipadapter相关的参数，根据服务器实际路径。
 
-- 注意：将所有FLUX和CLIP的路径改为本地路径。由于写代码的时候本地用不了FLUX和CLIP，所以核心部分并没有进行debug，需要注意debug一下。另外，LLM已经测试过，可以正常使用。
+    parser.add_argument(
+        "--ip_repo_id", type=str, default=None,
+        help="A HuggingFace repo id to download model (IP-Adapter)"
+    )
+    parser.add_argument(
+        "--ip_name", type=str, default=None,
+        help="A IP-Adapter filename to download from HuggingFace"
+    )
+    parser.add_argument(
+        "--ip_local_path", type=str, default=None,
+        help="Local path to the model checkpoint (IP-Adapter)"
+    )
+    parser.add_argument(
+        "--model_type", type=str, default="flux-dev",
+        choices=("flux-dev", "flux-dev-fp8", "flux-schnell"),
+        help="Model type to use (flux-dev, flux-dev-fp8, flux-schnell)"
+    )
+    parser.add_argument(
+        "--offload", action='store_true', help="Offload model to CPU when not in use"
+    )
+基本流程：  
+- stage1：初始化prompt $\rightarrow$ 实例化FLUX $\rightarrow$ 调用initialize函数（生成caption及对应图片，评分） $\rightarrow$ 结果写入seed.json
+- stage2：根据results1.json选出分数最低的图文对作为种子 $\rightarrow$ 提取并保存object, 初始化prompt $\rightarrow$ 实例化x_flux_ipadapter $\rightarrow$ 调用initialize函数（生成caption及对应图片，评分） $\rightarrow$ 结果写入seed.json
+
+### prepareAEL.py
+主要是Evaluation类，这是在进化算法运行过程中为每一个样本提供分数的。接下来会讲解一下Evaluation类的设计：  
+        
+    def __init__(self, T2Imodel, image_prompt, stage, pattern, VLMpath):
+            print("begin evaluate")
+            self.stages1 = {}
+            self.stages2 = {}
+            self.objective1 = {}
+            self.objective2 = {}
+            self.index = 0
+            self.T2I = T2Imodel
+            self.image_prompt = image_prompt
+            self.stage = stage
+            self.pattern = pattern
+            self.VLMpath = VLMpath
+- `T2Imodel`是传入用于生成caption对应的图片的模型，stage1是FLUX，stage2是FLUX-ipadapter，因为需要传入stage1的结果作为image prompt。
+- `image_prompt`是ipadapter需要的图片输入，这只在stage2有效，stage1设置为None。
+- `stage`一个整数，决定处于哪个阶段。
+- `pattern`是评测的模式，根据VLM生成的caption进行打分还是VQA打分。
+- `VLMpath`是VLM模型（比如LLaVA）的路径，根据服务器实际路径。
+- `stage1/2`是一个字典，存储所有caption以及对应的图片地址，key为caption，value为图片地址。
+- `objective1/2`是一个字典，存储所有的caption以及对应的分数，key为caption，value为分数。
+
+      def get_score(self, caption):
+          print(caption)
+          if self.stage == 1:
+              image = self.T2I(
+                  caption,
+                  height=1024,
+                  width=1024,
+                  guidance_scale=3.5,
+                  num_inference_steps=50,
+                  max_sequence_length=512,
+                  generator=torch.Generator("cpu").manual_seed(0)
+              ).images[0]
+              image_path = f"./images_stage1/{self.index}.png"
+              image.save(image_path)
+              self.stages1[caption] = image_path
+第一阶段的评测过程，没什么好说的。
+
+        elif self.stage == 2:
+            image = self.T2I(
+                prompt=caption,
+                width=1024,
+                height=1024,
+                guidance=4,
+                num_steps=25,
+                seed=self.index,
+                true_gs=3.5,
+                timestep_to_start_cfg=5,
+                image_prompt=self.image_prompt,
+                ip_scale=1.0,
+            )
+            image_path = f"./images_stage2/{self.index}.png"
+            image.save(image_path)
+            self.stages2[caption] = image_path
+        if self.pattern == 'caption':
+            fitness = caption_score(caption, self.VLMpath, image_path)
+        elif self.pattern == 'VQA':
+            fitness = VQA_score(caption, self.VLMpath, image_path)
+        if self.stage == 1:
+            self.objective1[caption] = fitness
+        elif self.stage == 2:
+            self.objective2[caption] = fitness
+        self.index = self.index + 1
+        return fitness
+先根据`stage`判断是哪个阶段的生成过程，然后选择评测模式，给出评测分数。`index`是图片的编号。
+
+### runAEL.py
+
+    # number of algorithms in each population, default = 10
+    parser.add_argument('--pop_size', default=50, type=int)
+    # number of populations, default = 10
+    parser.add_argument('--n_pop',default=5,type=int)
+    # number of parents for 'e1' and 'e2' operators, default = 2
+    parser.add_argument('--m',default=4,type=int)
+这些参数都是LLM进化算法的参数，`pop_size`决定了每一步选多少个最优的。
+
+    parser.add_argument('--caption_path', default="./stage1_results/captions/captions.txt")
+    parser.add_argument('--image_path', default="./stage1_results/images")
+以上分别是最终结果的保存地址，注意区分是第一阶段还是第二阶段。
+
+最终所有caption对应的图片地址，以及所有caption对应的分数这两组映射关系分别保存为两个字典，字典序列化为json文件，第一阶段就是
+`results1.json`和`objective1.json`，第二阶段就是1改成2。

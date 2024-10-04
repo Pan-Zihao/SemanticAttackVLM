@@ -1,27 +1,37 @@
-from ..llm.api_general import InterfaceAPI
+import json
+import requests
 
 
-class InterfaceLLM:
-    def __init__(self, api_endpoint, api_key, model_LLM, debug_mode):
-        self.api_endpoint = api_endpoint
-        self.api_key = api_key
-        self.model_LLM = model_LLM
-        self.debug_mode = debug_mode
+def get_response(user_message):
+    Baseurl = "https://api.claude-Plus.top"
+    Skey = "sk-vjulMaFmBWm31NP4OqwnKaDJMb3X0jbVlnIvg4XbYgtXwzWi"
 
-        self.interface_llm = InterfaceAPI(
-            self.api_endpoint,
-            self.api_key,
-            self.model_LLM,
-            self.debug_mode,
-        )
+    payload = json.dumps({
+        "model": "claude-3-5-sonnet-20240620",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant."
+            },
+            {
+                "role": "user",
+                "content": user_message
+            }
+        ]
+    })
 
-        # choose LLMs
-        # if self.type == "API2D-GPT":
-        #     self.interface_llm = InterfaceAPI2D(self.key,self.model_LLM,self.debug_mode)
-        # else:
-        #     print(">>> Wrong LLM type, only API2D-GPT is available! \n")
+    url = Baseurl + "/v1/chat/completions"
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {Skey}',
+        'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+        'Content-Type': 'application/json'
+    }
 
-    def get_response(self, prompt_content):
-        response = self.interface_llm.get_response(prompt_content)
+    response = requests.post(url, headers=headers, data=payload)
 
-        return response
+    data = response.json()
+
+    content = data['choices'][0]['message']['content']
+
+    return content

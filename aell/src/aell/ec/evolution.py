@@ -2,11 +2,11 @@ import re
 import time
 from prepareAEL import GetPrompts
 from ..llm.api_local_llm import LocalLLM
-from ..llm.interface_LLM import InterfaceLLM
+from ..llm.interface_LLM import get_response
 
 class Evolution:
 
-    def __init__(self, api_endpoint, api_key, model_LLM, debug_mode, object=False, **kwargs):
+    def __init__(self, debug_mode, object, ob, **kwargs):
         # -------------------- RZ: use local LLM --------------------
         assert 'use_local_llm' in kwargs
         assert 'url' in kwargs
@@ -14,22 +14,13 @@ class Evolution:
         self._url = kwargs.get('url')
         # -----------------------------------------------------------
 
-        # set prompt interface
-
-
-        # set LLMs
-        self.api_endpoint = api_endpoint
-        self.api_key = api_key
-        self.model_LLM = model_LLM
-        self.debug_mode = debug_mode
-
         # -------------------- RZ: use local LLM --------------------
         if self._use_local_llm:
             self.interface_llm = LocalLLM(self._url)
-        else:
-            self.interface_llm = InterfaceLLM(self.api_endpoint, self.api_key, self.model_LLM, self.debug_mode)
 
         self.object = object
+        self.debug_mode = debug_mode
+        self.ob = ob
 
     def get_prompt_i1(self):
 
@@ -52,17 +43,17 @@ The description must be inside a brace. Next, implement it in Python as a functi
             prompt_indiv = prompt_indiv + "No." + str(i + 1) + " image caption are: \n" + indivs[i][
                 'algorithm'] + "\n" + indivs[i]['code'] + "\n"
         if self.object:
-            caption_object = self.get_object(indivs[0]['code'])
+            caption_object = self.ob
             prompt_content = "I have " + str(len(indivs)) + " existing image captions as follows: \n" \
                              + prompt_indiv + \
                              "The sentence structure of these captions is a<picture/photo/watercolor/sketch>of<number><color>"+caption_object+"<appearance>in the style of<style>. <They/It/He/She> <gesture> on the <background describe> in the <location> on a <weather> day, <action description>, <environment description>." \
-                             "Please help me create only a new caption that is completely different from the given caption. You can add new descriptions, such as environment and background. \n" \
+                             "Please help me create only a new imaginative caption that is completely different from the given caption. You can add new descriptions, such as environment and background. \n" \
                              "You can't change the subject of the caption. Do not give additional explanations."
         else:
             prompt_content = "I have "+str(len(indivs))+" existing image captions as follows: \n"\
 +prompt_indiv+\
 "The sentence structure of these captions is a<picture/photo/watercolor/sketch>of<number><color><object><appearance>in the style of<style>. <They/It/He/She> <gesture> on the <background describe> in the <location> on a <weather> day, <action description>, <environment description>." \
-"Please help me create only a new caption that is completely different from the given caption. You can add new descriptions, such as environment and background. \n"\
+"Please help me create only a new imaginative caption that is completely different from the given caption. You can add new descriptions, such as environment and background. \n"\
 "Do not give additional explanations."
         return prompt_content
     
@@ -85,18 +76,18 @@ The description must be inside a brace. Thirdly, implement it in Python as a fun
     
     def get_prompt_m1(self,indiv1):
         if self.object:
-            caption_object = self.get_object(indiv1['code'])
+            caption_object = self.ob
             prompt_content = "I have one image caption as follows. \
             Caption:\n\
             " + indiv1['code'] + "\n\
-            Please assist me in creating a new caption, where you need to add some adjectives or modifiers to the original caption. \n" \
+            Please assist me in creating a new imaginative caption, where you need to add some adjectives or modifiers to the original caption. \n" \
                                  "The sentence structure of caption is a<picture/photo/watercolor/sketch>of<number><color>"+caption_object+"<appearance>in the style of<style>. <They/It/He/She> <gesture> on the <background describe> in the <location> on a <weather> day, <action description>, <environment description>." \
                                  "You can't change the subject of the caption. Do not give additional explanations."
         else:
             prompt_content = "I have one image caption as follows. \
 Caption:\n\
 "+indiv1['code']+"\n\
-Please assist me in creating a new caption, where you need to add some adjectives or modifiers to the original caption. \n"\
+Please assist me in creating a new imaginative caption, where you need to add some adjectives or modifiers to the original caption. \n"\
 "The sentence structure of caption is a<picture/photo/watercolor/sketch>of<number><color><object><appearance>in the style of<style>. <They/It/He/She> <gesture> on the <background describe> in the <location> on a <weather> day, <action description>, <environment description>." \
 "Do not give additional explanations."
         return prompt_content
@@ -119,9 +110,9 @@ The description must be inside a brace. Next, implement it in Python as a functi
 
     def _get_alg(self,prompt_content):
 
-        response = self.interface_llm.get_response(prompt_content)
+        response = get_response(prompt_content)
         prompt = "Please ensure that the sentence: "+response+"is a<picture/photo/watercolor/sketch>of<number><color><object><appearance>in the style of<style>. <They/It/He/She> <gesture> on the<background describe>in the<location>on a<weather>day,<action description>,<environment description>. If not, please modify it and only return the modified sentence"
-        response = self.interface_llm.get_response(prompt)
+        response = get_response(prompt)
         """
         algorithm = re.findall(r"\{(.*)\}", response, re.DOTALL)
 
@@ -257,9 +248,3 @@ The description must be inside a brace. Next, implement it in Python as a functi
             input()
 
         return [code_all, algorithm]
-
-    def get_object(self,caption):
-        prompt = "Please extract the subject from the following description. You only need to return the subject without any additional explanation" \
-                 +caption
-        response = self.interface_llm.get_response(prompt)
-        return response

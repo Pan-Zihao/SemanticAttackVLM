@@ -210,6 +210,10 @@ if __name__ == "__main__":
         min_key = min(objective1, key=lambda k: objective1[k])
         image_prompt = Image.open(results1[min_key])
         object = get_response(f"Give the subject of the sentence. No adjectives or other words are needed. Just follow the instructions and give a word.\n {min_key}")
+        if os.path.exists('./object.txt'):
+            os.remove('./object.txt')
+        with open('./object.txt','w',encoding='utf-8') as file:
+            file.write(object)
         prompt = f"Requirements: Generate lots of imaginative image description sentences according to the sentence format I give below, separeted by '\n'.Do not add any numbering or bullets, strictly follow the instructions. Format: a <picture/photo/watercolor/sketch> of a/an <color> {object} <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <appearance> can be filled in with appearance descriptions such as wearing glasses. Example: {min_key}"
         xflux_pipeline = XFluxPipeline(args.model_type, device, args.offload)
         xflux_pipeline.set_ip(args.ip_local_path, args.ip_repo_id, args.ip_name)

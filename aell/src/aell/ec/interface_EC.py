@@ -5,7 +5,7 @@ from .selection import parent_selection
 
 
 class InterfaceEC:
-    def __init__(self, pop_size, m, api_endpoint, api_key, llm_model, debug_mode, interface_eval, object=False, **kwargs):
+    def __init__(self, pop_size, m, debug_mode, interface_eval, object, ob, **kwargs):
         # -------------------- RZ: use local LLM --------------------
         assert 'use_local_llm' in kwargs
         assert 'url' in kwargs
@@ -14,7 +14,7 @@ class InterfaceEC:
         # LLM settings
         self.pop_size = pop_size
         self.interface_eval = interface_eval
-        self.evol = Evolution(api_endpoint, api_key, llm_model, debug_mode, object=object, **kwargs)
+        self.evol = Evolution(debug_mode, object=object, ob=ob, **kwargs)
         self.m = m
         
     #def code2file(self,code):

@@ -73,16 +73,8 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     ### LLM settings  ###
-
     use_local_llm = False  # if use local model
     url = None  # your local server 'http://127.0.0.1:11012/completions'
-
-    api_endpoint = "oa.api2d.site"
-    # api_key = "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" # use your key
-
-    api_key = "sk-ePaBZR3FUIwaQNojF0871e9a338d44C5B4D332B8B6B8968e"
-    # llm_model = "gpt-3.5-turbo-1106"
-    llm_model = "gpt-4o"
     ### output path ###
     output_path = "./"  # default folder for ael outputs
     createFolders.create_folders(output_path)
@@ -116,12 +108,11 @@ if __name__ == "__main__":
         pipe.enable_model_cpu_offload()
         eva = Evaluation(pipe,image_prompt=None,stage=1,pattern=args.pattern,VLMpath=args.VLMpath)
         print(">>> Start AEL stage1")
-        algorithmEvolution = ael.AEL(use_local_llm, url,
-            api_endpoint,api_key,llm_model,args.pop_size,args.n_pop,
+        algorithmEvolution = ael.AEL(use_local_llm, url,args.pop_size,args.n_pop,
             operators,args.m,operator_weights,load_data,output_path,debug_mode,evaluation=eva)
 
         # run AEL
-        algorithmEvolution.run(object=False)
+        algorithmEvolution.run(object=False, ob = None)
         print("AEL successfully finished !")
         get_output(eva.stages1, args.caption_path, args.image_path)
         if os.path.exists('results1.json'):
@@ -144,12 +135,13 @@ if __name__ == "__main__":
         eva = Evaluation(pipe, image_prompt=image_prompt, stage=2, pattern=args.pattern, VLMpath=args.VLMpath)
         print(">>> Start AEL stage2")
         algorithmEvolution = ael.AEL(use_local_llm, url,
-                                     api_endpoint, api_key, llm_model, args.pop_size, args.n_pop,
+                                     args.pop_size, args.n_pop,
                                      operators, args.m, operator_weights, load_data, output_path, debug_mode,
                                      evaluation=eva)
-
+        with open('./object.txt','r') as file:
+            ob = file.read()
         # run AEL
-        algorithmEvolution.run(object=True)
+        algorithmEvolution.run(object=True, ob=ob)
         print("AEL successfully finished !")
         get_output(eva.stages2, args.caption_path, args.image_path)
         if os.path.exists('results2.json'):

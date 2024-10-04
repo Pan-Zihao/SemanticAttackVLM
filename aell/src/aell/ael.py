@@ -9,16 +9,13 @@ from .ec.interface_EC import InterfaceEC
 class AEL:
 
     # initilization
-    def __init__(self, use_local_llm, url, api_endpoint, api_key, model, pop_size, n_pop, operators, m,
+    def __init__(self, use_local_llm, url, pop_size, n_pop, operators, m,
                  operator_weights, load_pop,
                  out_path, debug_mode, evaluation, **kwargs):
 
         # LLM settings
         self.use_local_llm = use_local_llm
         self.url = url
-        self.api_endpoint = api_endpoint  # currently only API2D + GPT
-        self.api_key = api_key
-        self.llm_model = model
         self.evaluation = evaluation
 
         # ------------------ RZ: use local LLM ------------------
@@ -62,7 +59,7 @@ class AEL:
         return True
 
     # run ael
-    def run(self, object=False):
+    def run(self, ob, object=False):
 
         # interface for large language model (llm)
         # interface_llm = PromptLLMs(self.api_endpoint,self.api_key,self.llm_model,self.debug_mode)
@@ -71,8 +68,7 @@ class AEL:
         interface_eval = self.evaluation
 
         # interface for ec operators
-        interface_ec = InterfaceEC(self.pop_size, self.m, self.api_endpoint, self.api_key, self.llm_model,
-                                   self.debug_mode, interface_eval, use_local_llm=self.use_local_llm, url=self.url, object=object)
+        interface_ec = InterfaceEC(self.pop_size, self.m, self.debug_mode, interface_eval, use_local_llm=self.use_local_llm, url=self.url, object=object, ob=ob)
 
         # initialization
         population = []
