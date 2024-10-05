@@ -33,4 +33,4 @@ pip install -e .
 详细的下载步骤可以参考[此指南](https://blog.csdn.net/qq_40600379/article/details/132006217)。
 
 ### 5. 模型调用：
-你可以在 evaluation/VLMevaluation.py 中调整 model_path 从而正确的使用模型。
+你可以在 evaluation/VLMevaluation.py 中调整 model_path 从而正确的使用模型。但是需要注意的是，你需要把LLAVA/llava/eval/run_llava.py中第128行左右的print(outputs)改为return outputs
