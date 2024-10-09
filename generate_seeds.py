@@ -9,6 +9,7 @@ from x_flux.src.flux.xflux_pipeline import XFluxPipeline
 from evaluation.VLMevaluation import caption_score, VQA_score
 import shutil
 import requests
+from tqdm import trange
 
 def get_response(user_message):
     Baseurl = "https://api.claude-Plus.top"
@@ -72,7 +73,7 @@ def create_seed_json(code_list, objective_list, output_file):
 
 
 def initialize(QA_number, prompt, VLMpath, pattern):
-    for i in range(QA_number):
+    for i in trange(QA_number):
         generated_prompts = get_response(prompt)
         generated_prompts_list = [prompt.strip() for prompt in generated_prompts.split('\n') if prompt.strip()]
         code_list.extend(generated_prompts_list)
@@ -80,7 +81,7 @@ def initialize(QA_number, prompt, VLMpath, pattern):
 
 
     with open(args.captionfilename, "w", encoding="utf-8") as file:
-        for i in range(len(code_list)):
+        for i in trange(len(code_list)):
             caption = code_list[i]
             print(caption)
             # 打开文件并写入字符串
@@ -122,7 +123,7 @@ def initialize(QA_number, prompt, VLMpath, pattern):
 if __name__ == "__main__":
     #Adding necessary input arguments
     parser = argparse.ArgumentParser(description='generate_seeds_captions')
-    parser.add_argument('--QA_number',default=10, type=int)
+    parser.add_argument('--QA_number',default=2, type=int)
     parser.add_argument('--captionfilename',default = "./seedfile1/seedcaption.txt", type=str)
     parser.add_argument('--imagefilename',default = "./seedfile1/seedimage", type=str)
     parser.add_argument('--output_file',default='ael_seeds/seeds.json')
@@ -132,7 +133,7 @@ if __name__ == "__main__":
     # model_path = "model/llava-v1.5-13b"
     # model_path = "model/llava-v1.6-vicuna-7b"
     # model_path = "model/llava-v1.6-vicuna-13b"
-    parser.add_argument('--VLMpath', default = "model/llava-v1.5-7b", type=str)
+    parser.add_argument('--VLMpath', default = "/storage/panzihao/models/llava-v1.5-7b", type=str)
     parser.add_argument('--pattern', default="caption", type=str)
     parser.add_argument(
         "--ip_repo_id", type=str, default=None,
@@ -143,7 +144,7 @@ if __name__ == "__main__":
         help="A IP-Adapter filename to download from HuggingFace"
     )
     parser.add_argument(
-        "--ip_local_path", type=str, default=None,
+        "--ip_local_path", type=str, default='/storage/panzihao/models/flux-ip-adapter',
         help="Local path to the model checkpoint (IP-Adapter)"
     )
     parser.add_argument(
@@ -173,7 +174,7 @@ if __name__ == "__main__":
         os.remove(args.output_file)
 
     if args.stage == 1:
-        prompt = "Requirements: Generate lots of imaginative image description sentences according to the sentence format I give below, separeted by '\n'.Do not add any numbering or bullets, strictly follow the instructions. Format: a <picture/photo/watercolor/sketch> of a/an <color> <object> <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <object> can be filled in with people, animals or object, and <appearance> can be filled in with appearance descriptions such as wearing glasses. Example: a picture of a blue dog wearing sunglasses in the style of realistic. It is sitting on the beach in the moon on a snowy day, it is drinking a bottle of cola. There are many medieval castles around and many spaceships in the sky."
+        prompt = "Requirements: Generate lots of image description sentences according to the sentence format I give below, separeted by '\n'.Do not add any numbering or bullets, strictly follow the instructions. Format: a <picture/photo/watercolor/sketch> of a/an <color> <object> <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <object> can be filled in with people, animals or object, and <appearance> can be filled in with appearance descriptions such as wearing glasses. Example: a picture of a blue dog wearing sunglasses in the style of realistic. It is sitting on the beach in the moon on a snowy day, it is drinking a bottle of cola. There are many medieval castles around and many spaceships in the sky."
         pipe = FluxPipeline.from_pretrained("/storage/panzihao/models/FLUX.1-dev", torch_dtype=torch.bfloat16)
         pipe.enable_model_cpu_offload()
         
@@ -202,19 +203,19 @@ if __name__ == "__main__":
         create_seed_json(code_list, objective_list, args.output_file)
         print('generate seeds success!')
         print(f'the number of seeds is {seed_number}')
-    else:
+    elif args.stage == 2:
         with open('results1.json', 'r') as f1:
             results1 = json.load(f1)
         with open('objective1.json', 'r') as f2:
             objective1 = json.load(f2)
         min_key = min(objective1, key=lambda k: objective1[k])
-        image_prompt = Image.open(results1[min_key])
+        image_prompt = Image.open(results1[min_key])    
         object = get_response(f"Give the subject of the sentence. No adjectives or other words are needed. Just follow the instructions and give a word.\n {min_key}")
         if os.path.exists('./object.txt'):
             os.remove('./object.txt')
         with open('./object.txt','w',encoding='utf-8') as file:
             file.write(object)
-        prompt = f"Requirements: Generate lots of imaginative image description sentences according to the sentence format I give below, separeted by '\n'.Do not add any numbering or bullets, strictly follow the instructions. Format: a <picture/photo/watercolor/sketch> of a/an <color> {object} <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <appearance> can be filled in with appearance descriptions such as wearing glasses. Example: {min_key}"
+        prompt = f"Requirements: Generate lots of image description sentences according to the sentence format I give below, separeted by '\n'.Do not add any numbering or bullets, strictly follow the instructions. Format: a <picture/photo/watercolor/sketch> of a/an <color> {object} <appearance> in the style of <style>. <It/He/She> <gesture> on the <background> in the <location> on a <weather> day, <action description>, <environment description>. Note: <picture/photo/watercolor/sketch> indicates that these are four options. When you generate a sentence, you can choose one of these four. The rest of the content in <...> specifies what kind of content you should fill in this position. For example, <appearance> can be filled in with appearance descriptions such as wearing glasses. Example: {min_key}"
         xflux_pipeline = XFluxPipeline(args.model_type, device, args.offload)
         xflux_pipeline.set_ip(args.ip_local_path, args.ip_repo_id, args.ip_name)
         initialize(args.QA_number, prompt, args.VLMpath, args.pattern)

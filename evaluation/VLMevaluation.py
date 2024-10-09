@@ -3,7 +3,6 @@ from llava.model.builder import load_pretrained_model
 from llava.mm_utils import get_model_name_from_path
 from llava.eval.run_llava import eval_model
 from rouge import Rouge
-import nltk
 from nltk.translate.bleu_score import sentence_bleu
 import nltk
 from nltk.translate import meteor_score
