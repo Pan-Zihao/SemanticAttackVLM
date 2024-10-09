@@ -1,0 +1,20 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "a sketch of a brown teddy bear reading in the style of children's book illustration. It sits in a cozy armchair in the attic on a rainy afternoon, wearing tiny spectacles, with stacks of books and magical objects scattered around.",
+          "objective": 0.75918,
+          "other_inf": null
+     },
+     "parent2": {
+          "algorithm": "",
+          "code": "a photo of a red fox wearing a scarf in the style of wildlife photography. It leaps gracefully across a frozen lake in the arctic on a clear day, chasing after a snowshoe hare, with towering glaciers and the northern lights in the background.",
+          "objective": 0.75224,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A watercolor of three vibrant hummingbirds in the style of magical realism. They hover around a giant, bioluminescent flower in a misty rainforest at twilight, sipping nectar from its petals, with glowing fireflies and mysterious floating orbs illuminating the scene.",
+          "objective": 0.39459,
+          "other_inf": null
+     }
+}

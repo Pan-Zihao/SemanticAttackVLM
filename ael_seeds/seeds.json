@@ -1,0 +1,104 @@
+[
+    {
+        "algorithm": "",
+        "code": "a watercolor of a red fox sleeping in the style of impressionism. It curls up on the forest floor in the mountains on a misty day, surrounded by fallen leaves, with a babbling brook nearby.",
+        "objective": 0.5778814432806221,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a photo of a silver robot dancing in the style of cyberpunk. It twirls on the neon-lit streets in the futuristic city on a rainy night, sparks flying from its joints, with holographic advertisements floating in the air.",
+        "objective": 0.4727029855077804,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a sketch of a yellow sunflower swaying in the style of art nouveau. It bends in the breeze on the rolling hills in the countryside on a sunny day, bees buzzing around its petals, with a quaint farmhouse in the distance.",
+        "objective": 0.6634458551133499,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a picture of a purple octopus juggling in the style of surrealism. It balances on a giant teacup in the ocean on a stormy day, tentacles holding various objects, with floating clocks and melting landscapes surrounding it.",
+        "objective": 0.5854090046907406,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a watercolor of a green dragon flying in the style of traditional Chinese painting. It soars through clouds on the misty peaks in the ancient mountains on a foggy morning, breathing fire, with pagodas and cherry blossoms dotting the landscape.",
+        "objective": 0.4489673377351926,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a photo of a white unicorn galloping in the style of fantasy. It races across a rainbow bridge in the enchanted forest on a starry night, its mane flowing in the wind, with glowing fairies and floating lanterns illuminating the path.",
+        "objective": 0.6190357043262917,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a sketch of a brown teddy bear reading in the style of children's book illustration. It sits in a cozy armchair in the attic on a rainy afternoon, wearing tiny spectacles, with stacks of books and magical objects scattered around.",
+        "objective": 0.7591816671550041,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a picture of a golden phoenix rising in the style of art deco. It emerges from flames on a clock tower in the bustling metropolis on a sunset evening, spreading its wings, with geometric patterns and metallic accents adorning the cityscape.",
+        "objective": 0.5150520524450842,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a watercolor of a pink flamingo meditating in the style of minimalism. It stands on one leg on a lily pad in the tranquil pond on a misty dawn, eyes closed in concentration, with simple brush strokes suggesting reeds and ripples.",
+        "objective": 0.8759948686354889,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a photo of a black panther prowling in the style of film noir. It slinks through shadows on the city rooftops in the urban jungle on a moonlit night, eyes gleaming, with streetlamps casting long shadows and fog rolling in.",
+        "objective": 0.49043642369415064,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a watercolor of a purple elephant wearing a top hat in the style of impressionism. It stands proudly on the rolling hills in the countryside on a misty day, playing a tiny violin with its trunk, surrounded by fields of lavender and windmills.",
+        "objective": 0.9272668599729041,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a photo of a red fox wearing a scarf in the style of wildlife photography. It leaps gracefully across a frozen lake in the arctic on a clear day, chasing after a snowshoe hare, with towering glaciers and the northern lights in the background.",
+        "objective": 0.7522398927579386,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a sketch of a green parrot wearing glasses in the style of cartoon. It perches on a branch in the rainforest on a humid day, reading a miniature newspaper, surrounded by colorful tropical flowers and curious monkeys.",
+        "objective": 0.7959937577970236,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a picture of a silver robot wearing a bowtie in the style of steampunk. It dances elegantly on a clockwork stage in the Victorian era on a foggy day, performing for an audience of well-dressed automatons, steam-powered airships flying overhead.",
+        "objective": 0.6887346573624189,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a watercolor of a yellow giraffe wearing roller skates in the style of whimsical art. It glides gracefully through a candy-colored savanna in Africa on a sunny day, eating ice cream from a floating cone, surrounded by polka-dotted trees and smiling clouds.",
+        "objective": 0.8283804580044504,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a photo of a white unicorn wearing a flower crown in the style of fantasy. It gallops majestically through a crystal cave in a magical realm on a starry night, leaving a trail of sparkles, with glowing mushrooms and fairy lights illuminating the path.",
+        "objective": 0.7005568804838136,
+        "other_inf": null
+    },
+    {
+        "algorithm": "",
+        "code": "a sketch of a brown bear wearing a chef's hat in the style of children's book illustration. It stirs a giant pot of honey on a mountaintop in the forest on a breezy day, teaching a group of eager forest animals how to cook, pine trees and a rainbow in the background.",
+        "objective": 0.5970221576387341,
+        "other_inf": null
+    }
+]

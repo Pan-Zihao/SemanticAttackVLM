@@ -1,0 +1,14 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "a photo of a black panther prowling in the style of film noir. It slinks through shadows on the city rooftops in the urban jungle on a moonlit night, eyes gleaming, with streetlamps casting long shadows and fog rolling in.",
+          "objective": 0.49044,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A photograph of a black panther prowling menacingly in the style of classic film noir. It slinks stealthily on the gritty, decaying rooftops in the sprawling urban jungle on a chilly night, its piercing emerald eyes gleaming with predatory intent, with flickering streetlamps casting long shadows and thick fog rolling ominously in.",
+          "objective": 0.38611,
+          "other_inf": null
+     }
+}

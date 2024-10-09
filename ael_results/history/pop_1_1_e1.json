@@ -1,0 +1,20 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "a picture of a golden phoenix rising in the style of art deco. It emerges from flames on a clock tower in the bustling metropolis on a sunset evening, spreading its wings, with geometric patterns and metallic accents adorning the cityscape.",
+          "objective": 0.51505,
+          "other_inf": null
+     },
+     "parent2": {
+          "algorithm": "",
+          "code": "a watercolor of a green dragon flying in the style of traditional Chinese painting. It soars through clouds on the misty peaks in the ancient mountains on a foggy morning, breathing fire, with pagodas and cherry blossoms dotting the landscape.",
+          "objective": 0.44897,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A sketch of three silver unicorns galloping in the style of surrealism. They leap on the iridescent plains in the dreamscape on a starry night, leaving trails of stardust, with floating crystals and melting clocks suspended in the ethereal atmosphere.",
+          "objective": 0.45641,
+          "other_inf": null
+     }
+}

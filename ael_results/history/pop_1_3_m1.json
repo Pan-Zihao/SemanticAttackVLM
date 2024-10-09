@@ -1,0 +1,14 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A watercolor of three vibrant hummingbirds in the style of magical realism. They hover around a giant, bioluminescent flower in a misty rainforest at twilight, sipping nectar from its petals, with glowing fireflies and mysterious floating orbs illuminating the scene.",
+          "objective": 0.39459,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A mesmerizing watercolor of three iridescent hummingbirds in the style of surrealist magical realism. They gracefully hover around a colossal bioluminescent flower in a mystical rainforest at twilight, delicately sipping shimmering nectar from its translucent petals, with enchanted fireflies and prismatic orbs illuminating the dreamlike scene.",
+          "objective": 0.35863,
+          "other_inf": null
+     }
+}

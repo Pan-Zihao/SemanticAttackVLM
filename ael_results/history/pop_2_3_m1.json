@@ -1,0 +1,14 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A sketch of five brass clockwork robots in the style of steampunk fantasy. They dance gracefully on the surface of a giant pocket watch floating in a swirling vortex of cosmic dust in the depths of space on a starry night, their gears clicking rhythmically, surrounded by constellations and nebulae that pulse with ethereal light.",
+          "objective": 0.34262,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A whimsical sketch of five gleaming brass clockwork robots with intricate gears in the style of Victorian steampunk fantasy. They pirouette gracefully on the ornate surface of a colossal antique pocket watch floating serenely in the infinite depths of space on a crisp starry night, their delicate gears clicking rhythmically in perfect synchronization, surrounded by twinkling constellations and swirling, iridescent nebulae.",
+          "objective": 0.3669,
+          "other_inf": null
+     }
+}

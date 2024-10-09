@@ -1,0 +1,14 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "a photo of a silver robot dancing in the style of cyberpunk. It twirls on the neon-lit streets in the futuristic city on a rainy night, sparks flying from its joints, with holographic advertisements floating in the air.",
+          "objective": 0.4727,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A watercolor of a sleek, iridescent silver robot gracefully dancing in the style of retro-futuristic cyberpunk. It elegantly twirls on the glistening, neon-drenched streets in the sprawling, vertical metropolis on a misty night, vibrant sparks cascading from its fluid joints, with shimmering, translucent holographic advertisements floating ethereally in the smog-filled air.",
+          "objective": 0.37458,
+          "other_inf": null
+     }
+}

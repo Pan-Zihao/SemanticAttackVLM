@@ -1,0 +1,14 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "a watercolor of a green dragon flying in the style of traditional Chinese painting. It soars through clouds on the misty peaks in the ancient mountains on a foggy morning, breathing fire, with pagodas and cherry blossoms dotting the landscape.",
+          "objective": 0.44897,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A vibrant watercolor of a majestic emerald dragon gracefully soaring in the style of intricate traditional Chinese painting. It glides effortlessly through wispy, pearlescent clouds on the mist-shrouded, craggy peaks in the ancient, mystical mountains on a tranquil, foggy morning, breathing shimmering golden flames, with ornate pagodas and delicate pink cherry blossoms dotting the landscape.",
+          "objective": 0.57882,
+          "other_inf": null
+     }
+}

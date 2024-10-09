@@ -1,0 +1,20 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A sketch of five brass clockwork robots in the style of steampunk fantasy. They dance gracefully on the surface of a giant pocket watch floating in a swirling vortex of cosmic dust in the depths of space on a starry night, their gears clicking rhythmically, surrounded by constellations and nebulae that pulse with ethereal light.",
+          "objective": 0.34262,
+          "other_inf": null
+     },
+     "parent2": {
+          "algorithm": "",
+          "code": "A watercolor of a sleek, iridescent silver robot gracefully dancing in the style of retro-futuristic cyberpunk. It elegantly twirls on the glistening, neon-drenched streets in the sprawling, vertical metropolis on a misty night, vibrant sparks cascading from its fluid joints, with shimmering, translucent holographic advertisements floating ethereally in the smog-filled air.",
+          "objective": 0.37458,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A photograph of three luminous androids harmonizing in the style of bioluminescent surrealism. They sway rhythmically on the undulating surface of a giant lotus flower floating in a shimmering sea of liquid mercury under twin moons, their translucent bodies pulsing with internal light, surrounded by schools of glowing, jellyfish-like creatures that drift lazily through the iridescent air.",
+          "objective": 0.39104,
+          "other_inf": null
+     }
+}

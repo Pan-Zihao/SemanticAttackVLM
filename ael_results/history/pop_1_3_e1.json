@@ -1,0 +1,20 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A photograph of a black panther prowling menacingly in the style of classic film noir. It slinks stealthily on the gritty, decaying rooftops in the sprawling urban jungle on a chilly night, its piercing emerald eyes gleaming with predatory intent, with flickering streetlamps casting long shadows and thick fog rolling ominously in.",
+          "objective": 0.38611,
+          "other_inf": null
+     },
+     "parent2": {
+          "algorithm": "",
+          "code": "A watercolor of a sleek, iridescent silver robot gracefully dancing in the style of retro-futuristic cyberpunk. It elegantly twirls on the glistening, neon-drenched streets in the sprawling, vertical metropolis on a misty night, vibrant sparks cascading from its fluid joints, with shimmering, translucent holographic advertisements floating ethereally in the smog-filled air.",
+          "objective": 0.37458,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A sketch of three luminous jellyfish floating serenely in the style of surrealist bioluminescence. They pulsate rhythmically through the shimmering waters in the hidden depths of an alien ocean on a starless night, their translucent tentacles trailing gossamer threads of light, with swirling bioluminescent plankton creating mesmerizing patterns in their wake.",
+          "objective": 0.52359,
+          "other_inf": null
+     }
+}

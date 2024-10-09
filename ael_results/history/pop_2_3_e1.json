@@ -1,0 +1,20 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A sketch of five brass clockwork robots in the style of steampunk fantasy. They dance gracefully on the surface of a giant pocket watch floating in a swirling vortex of cosmic dust in the depths of space on a starry night, their gears clicking rhythmically, surrounded by constellations and nebulae that pulse with ethereal light.",
+          "objective": 0.34262,
+          "other_inf": null
+     },
+     "parent2": {
+          "algorithm": "",
+          "code": "A whimsical sketch of five brass clockwork robots in the style of fantastical steampunk. They pirouette gracefully on the ornate surface of a colossal pocket watch in the vast depths of space on a starry night, their gears clicking rhythmically, surrounded by shimmering constellations and colorful nebulae.",
+          "objective": 0.35086,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A watercolor of three iridescent jellyfish-like creatures in the style of bioluminescent fantasy. They undulate hypnotically through the dense underwater forest in the abyssal depths on a moonless night, trailing streams of glowing particles, surrounded by schools of tiny, phosphorescent fish.",
+          "objective": 0.4768,
+          "other_inf": null
+     }
+}

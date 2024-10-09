@@ -34,11 +34,11 @@ if __name__ == "__main__":
     # Adding necessary input arguments
     parser = argparse.ArgumentParser(description='main')
     # number of algorithms in each population, default = 10
-    parser.add_argument('--pop_size', default=50, type=int)
+    parser.add_argument('--pop_size', default=5, type=int)
     # number of populations, default = 10
-    parser.add_argument('--n_pop',default=5,type=int)
+    parser.add_argument('--n_pop',default=2,type=int)
     # number of parents for 'e1' and 'e2' operators, default = 2
-    parser.add_argument('--m',default=4,type=int)
+    parser.add_argument('--m',default=2,type=int)
     parser.add_argument('--caption_path', default="./stage1_results/captions/captions.txt")
     parser.add_argument('--image_path', default="./stage1_results/images")
     parser.add_argument('--stage', default=1, type=int)
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     # model_path = "model/llava-v1.5-13b"
     # model_path = "model/llava-v1.6-vicuna-7b"
     # model_path = "model/llava-v1.6-vicuna-13b"
-    parser.add_argument('--VLMpath', default="model/llava-v1.5-7b", type=str)
+    parser.add_argument('--VLMpath', default="../models/llava-v1.5-7b", type=str)
     parser.add_argument('--pattern', default="caption", type=str)
     parser.add_argument(
         "--ip_repo_id", type=str, default=None,

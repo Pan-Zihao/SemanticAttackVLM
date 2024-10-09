@@ -1,0 +1,14 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A sketch of three vibrant, geometric hummingbirds hovering gracefully in the style of abstract cubism. They flutter harmoniously around a crystalline, prismatic flower in a surreal, kaleidoscopic garden on a shimmering summer day, their iridescent wings creating a mesmerizing pattern of light and shadow, with fractured rainbows and swirling, multicolored nectar streams suspended in the air.",
+          "objective": 0.42349,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A whimsical sketch of three prismatic hummingbirds hovering elegantly in the style of dreamlike abstract cubism. They flutter melodiously around a crystalline flower on a shimmering, ethereal background in a fantastical wonderland on a bright summer day, their wings creating an enchanting display of light, with fractured rainbows and swirling nectar streams suspended in the air.",
+          "objective": 0.35451,
+          "other_inf": null
+     }
+}

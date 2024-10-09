@@ -1,0 +1,20 @@
+{
+     "parent1": {
+          "algorithm": "",
+          "code": "A watercolor of three vibrant hummingbirds in the style of magical realism. They hover around a giant, bioluminescent flower in a misty rainforest at twilight, sipping nectar from its petals, with glowing fireflies and mysterious floating orbs illuminating the scene.",
+          "objective": 0.39459,
+          "other_inf": null
+     },
+     "parent2": {
+          "algorithm": "",
+          "code": "A photograph of a black panther prowling menacingly in the style of classic film noir. It slinks stealthily on the gritty, decaying rooftops in the sprawling urban jungle on a chilly night, its piercing emerald eyes gleaming with predatory intent, with flickering streetlamps casting long shadows and thick fog rolling ominously in.",
+          "objective": 0.38611,
+          "other_inf": null
+     },
+     "offspring": {
+          "algorithm": "",
+          "code": "A sketch of five brass clockwork robots in the style of steampunk fantasy. They dance gracefully on the surface of a giant pocket watch floating in a swirling vortex of cosmic dust in the depths of space on a starry night, their gears clicking rhythmically, surrounded by constellations and nebulae that pulse with ethereal light.",
+          "objective": 0.34262,
+          "other_inf": null
+     }
+}
