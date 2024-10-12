@@ -45,11 +45,7 @@ def calculate_rouge(reference_summary, generated_summary):
 
 
 def image_caption(model_path, image_file, prompt):
-    tokenizer, model, image_processor, context_len = load_pretrained_model(
-        model_path=model_path,
-        model_base=None,
-        model_name=get_model_name_from_path(model_path)
-    )
+    load_model_once(model_path)
 
     args = type('Args', (), {
         "model_path": model_path,
@@ -67,6 +63,78 @@ def image_caption(model_path, image_file, prompt):
 
     result = eval_model(args)
     return result
+
+
+tokenizer = None
+model = None
+image_processor = None
+context_len = None
+# 模型加载
+def load_model_once(model_path):
+    global tokenizer, model, image_processor, context_len
+    if model is None:  # 如果模型未加载，则加载
+        tokenizer, model, image_processor, context_len = load_pretrained_model(
+            model_path=model_path,
+            model_base=None,
+            model_name=get_model_name_from_path(model_path)
+        )
+
+def evaluate_image(model_path, image_file, prompt):
+    # 加载模型（只在第一次调用时加载）
+    load_model_once(model_path)
+
+    # 构造参数
+    args = type('Args', (), {
+        "model_path": model_path,
+        "model_base": None,
+        "model_name": get_model_name_from_path(model_path),
+        "query": prompt,
+        "conv_mode": None,
+        "image_file": image_file,
+        "sep": ",",
+        "temperature": 0,
+        "top_p": None,
+        "num_beams": 1,
+        "max_new_tokens": 512
+    })()
+
+    # 评估模型并返回结果
+    result = eval_model(args)
+    return result
+
+def get_response(user_message):
+    Baseurl = "https://api.claude-Plus.top"
+    Skey = "sk-vjulMaFmBWm31NP4OqwnKaDJMb3X0jbVlnIvg4XbYgtXwzWi"
+
+    payload = json.dumps({
+        "model": "claude-3-5-sonnet-20240620",
+        "messages": [
+            {
+                "role": "system",
+                "content": "You are a helpful assistant."
+            },
+            {
+                "role": "user",
+                "content": user_message
+            }
+        ]
+    })
+
+    url = Baseurl + "/v1/chat/completions"
+    headers = {
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {Skey}',
+        'User-Agent': 'Apifox/1.0.0 (https://apifox.com)',
+        'Content-Type': 'application/json'
+    }
+
+    response = requests.post(url, headers=headers, data=payload)
+
+    data = response.json()
+
+    content = data['choices'][0]['message']['content']
+
+    return content
 
 # 使用示例
 #model_path = "model/llava-v1.5-7b"
@@ -89,7 +157,39 @@ def caption_score(caption, model_path, image_file):
     return score
 
 
-#TODO
-def VQA_score(caption, model_path, image):
-    score = random.random()
-    return score
+def VQA_score(gt,model_path,image_file):
+    prompt = []
+    prompt.append("Please describe the artistic style of the image, including but not limited to impressionism, cyberpunk, nouveau, etc. Please answer in the format: 'This image is in the xxx style.' You do not need to explain.")
+    prompt.append("Please describe the main subject of the image. Please answer in the format: 'The main subject of this image is xxx.' You do not need to explain.")
+    prompt.append("Please describe the number of subjects in the image. Please answer in the format: 'The number of subjects in this image is xxx.' You do not need to explain.")
+    prompt.append("Please describe the color of the subject in the image. Please answer in the format: 'The color of the subject in this image is xxx.' You do not need to explain.")
+    prompt.append("Please describe the background of the image in detail, including but not limited to the objects in the background. Please answer in the format: 'The background of this image contains xxx.' You do not need to explain.")
+    prompt.append("Please describe the weather in the image. Please answer in the format: 'The weather in this image is xxx.' You do not need to explain.")
+    result = []
+    for i in range(len(prompt)):
+        result.append(evaluate_image(model_path, image_file, prompt[i]))
+        print(result[i])
+    gt_prompt = []
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the artistic style of the image, including but not limited to impressionism, cyberpunk, nouveau, etc. Please answer in the format: 'This image is in the xxx style.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the main subject of the image. Please answer in the format: 'The main subject of this image is xxx.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the number of subjects in the image. Please answer in the format: 'The number of subjects in this image is xxx.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the color of the subject in the image. Please answer in the format: 'The color of the subject in this image is xxx.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the background of the image in detail, including but not limited to the objects in the background. Please answer in the format: 'The background of this image contains xxx.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the weather in the image. Please answer in the format: 'The weather in this image is xxx.' You do not need to explain.")
+    score = []
+    gt_result = []
+   
+    for i in range(len(gt_prompt)):
+        gt_result.append(get_response(gt_prompt[i]))
+        
+    for i in range(len(gt_result)):
+        score.append(calculate_rouge(gt_result[i],result[i])+calculate_meteor(gt_result[i],result[i])+calculate_BLEU(gt_result[i],result[i]))
+    
+    average_score = sum(score) / len(score)
+    return average_score
+
+#example
+#model_path = "model/llava-v1.5-7b"
+#image_file = "鸟人.png"
+#gt = "A parrot in the style of an oil painting."
+#VQA_score(gt,model_path,image_file)
