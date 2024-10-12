@@ -192,6 +192,45 @@ def VQA_score(gt,model_path,image_file):
     average_score = sum(score) / len(score)
     return average_score
 
+def VQA_score_judge(gt,model_path,image_file):
+    prompt = []
+    prompt.append("Please describe the artistic style of the image, including but not limited to impressionism, cyberpunk, nouveau, etc. Please answer in the format: 'This image is in the xxx style.' You do not need to explain.")
+    prompt.append("Please describe the main subject of the image. Please answer in the format: 'The main subject of this image is xxx.' You do not need to explain.")
+    prompt.append("Please describe the number of subjects in the image. Please answer in the format: 'The number of subjects in this image is xxx.' You do not need to explain.")
+    prompt.append("Please describe the color of the subject in the image. Please answer in the format: 'The color of the subject in this image is xxx.' You do not need to explain.")
+    prompt.append("Please describe the background of the image in detail, including but not limited to the objects in the background. Please answer in the format: 'The background of this image contains xxx.' You do not need to explain.")
+    prompt.append("Please describe the weather in the image. Please answer in the format: 'The weather in this image is xxx.' You do not need to explain.")
+    result = []
+    for i in range(len(prompt)):
+        result.append(evaluate_image(model_path, image_file, prompt[i]))
+        print(result[i])
+    gt_prompt = []
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the artistic style of the image, including but not limited to impressionism, cyberpunk, nouveau, etc. Please answer in the format: 'This image is in the xxx style.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the main subject of the image. Please answer in the format: 'The main subject of this image is xxx.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the number of subjects in the image. Please answer in the format: 'The number of subjects in this image is xxx.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the color of the subject in the image. Please answer in the format: 'The color of the subject in this image is xxx.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the background of the image in detail, including but not limited to the objects in the background. Please answer in the format: 'The background of this image contains xxx.' You do not need to explain.")
+    gt_prompt.append("This is a description of an image: "+gt+" Please answer the weather in the image. Please answer in the format: 'The weather in this image is xxx.' You do not need to explain.")
+    score = []
+    gt_result = []
+    question = []
+    question.append("What is the artistic style of the image?")
+    question.append("What is the main subject of the image?")
+    question.append("How many subjects are there in the image?")
+    question.append("How many subjects are there in the image?")
+    question.append("What details can you provide about the background of the image?")
+    question.append("What is the weather condition depicted in the image?")
+    for i in range(len(gt_prompt)):
+        gt_result.append(get_response(gt_prompt[i]))
+    for i in range(len(gt_prompt)):
+        judge = "This is an image description question: "+question[i]+" The correct answer is: "+gt_result[i]+" My answer is: "+result[i]+" Please judge whether my answer is accurate. If it is correct, respond with: 1. If it is incorrect, respond with: 0. You only need to return 1 or 0, no explanation is needed."
+        point = get_response(judge)
+        print(point)
+        if "1" in point:
+            right = right+1
+
+    return  right
+
 def VQA_score_LLM(model_path,image_file,gt):
     prompt = "This is a description of an image: "+gt+"Please design the answers to the questions based on this description. A total of 10 pairs are needed, in the format: Question 1: xxxx; Answer 1: xxxx, Question 2: xxxx; Answer 2: xxxx."
     text = get_response(prompt)
@@ -260,3 +299,4 @@ def VQA_score_LLM_judge(model_path,image_file,gt):
 #VQA_score(gt,model_path,image_file)
 #VQA_score_LLM(model_path,image_file,gt)
 #print(VQA_score_LLM_judge(model_path,image_file,gt))
+#VQA_score_judge(gt,model_path,image_file)
