@@ -8,6 +8,10 @@ import nltk
 from nltk.translate import meteor_score
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
+import sys
+import os
+import json
+import requests
 nltk.download('punkt')
 nltk.download('wordnet')
 
