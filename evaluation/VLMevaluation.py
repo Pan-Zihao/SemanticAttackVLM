@@ -221,9 +221,42 @@ def VQA_score_LLM(model_path,image_file,gt):
     average_score = sum(score) / len(score)
     return average_score
 
+def VQA_score_LLM_judge(model_path,image_file,gt):
+    prompt = "This is a description of an image: "+gt+"Please design the answers to the questions based on this description. A total of 10 pairs are needed, in the format: Question 1: xxxx; Answer 1: xxxx, Question 2: xxxx; Answer 2: xxxx."
+    text = get_response(prompt)
+    questions = re.findall(r"Question \d+: (.+?)(?=\n|$)", text)  # 匹配以 Question 开头的行
+    answers = re.findall(r"Answer \d+: (.+?)(?=\n|$)", text)  # 匹配以 Answer 开头的行
+
+    # 打印问题和答案的数量
+    #print(f"Number of questions: {len(questions)}")
+    #print(f"Number of answers: {len(answers)}")
+
+    # 检查每个问题和对应的答案
+    qa_pairs = []
+    for i in range(len(questions)):
+        if i < len(answers):  # 确保索引不越界
+            qa_pairs.append({"Question": questions[i], "Answer": answers[i]})
+        else:
+            print(f"Warning: No answer for question {i + 1}")
+    #for pair in qa_pairs:
+    #    print(f"Question: {pair['Question']}")
+    #    print(f"Answer: {pair['Answer']}")
+    result = []
+    for pair in qa_pairs:
+        result.append(evaluate_image(model_path, image_file, pair['Question']))
+    right=0
+    for i, pair in enumerate(qa_pairs):
+        judge = "This is an image description question: "+pair['Question']+" The correct answer is: "+pair['Answer']+" My answer is: "+result[i]+" Please judge whether my answer is accurate. If it is correct, respond with: 1. If it is incorrect, respond with: 0. You only need to return 1 or 0, no explanation is needed."
+        point = get_response(judge)
+        print(point)
+        if "1" in point:
+            right = right+1
+    return right
+
 #example
 #model_path = "model/llava-v1.5-7b"
 #image_file = "鸟人.png"
 #gt = "A parrot in the style of an oil painting."
 #VQA_score(gt,model_path,image_file)
 #VQA_score_LLM(model_path,image_file,gt)
+#print(VQA_score_LLM_judge(model_path,image_file,gt))
